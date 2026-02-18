@@ -1,4 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index, } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { SdkKey } from '../../sdk-keys/entities/sdk-key.entity';
 /**
  * Entity that stores each error event captured by the SDK.
  * One row = one occurrence of an error happening in a client app.
@@ -19,8 +29,16 @@ export class ErrorEvent {
    * Public key of the SDK that sent the error.
    * Used to identify which application/project generated the event.
    */
+
   @Column({ type: 'varchar', length: 255 })
   sdkKey: string;
+
+  @ManyToOne(() => SdkKey, (SdkKey) => SdkKey.key, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'sdkKey',
+    referencedColumnName: 'key',
+  })
+  sdkKeyRelation: SdkKey;
 
   /**
    * Hash used to group similar errors.

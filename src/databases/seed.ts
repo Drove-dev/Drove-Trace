@@ -9,6 +9,7 @@ import { User } from '../modules/users/entities/user.entity';
 import { SdkKey } from '../modules/sdk-keys/entities/sdk-key.entity';
 import { ErrorEvent } from '../modules/error-events/entities/error-event.entity';
 import { ErrorGroup } from '../modules/error-groups/entities/error-group.entity';
+import { Role } from '../modules/roles/entities/role.entity';
 
 //Seed Files
 import { seedMVP } from './seeds/initial-seed.seed';
@@ -16,22 +17,31 @@ import { resetSeed } from './seeds/reset.seed';
 
 // Connect to DB
 function getAppDataSource() {
-    const AppDataSource = new DataSource({
-        type: 'postgres',
-        host: process.env.DB_HOST,
-        port: +process.env.DB_PORT!,
-        database: process.env.DB_NAME,
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        entities: [User, Team, TeamMember, Project, SdkKey, ErrorEvent, ErrorGroup],
-      });
+  const AppDataSource = new DataSource({
+    type: 'postgres',
+    host: process.env.DB_HOST,
+    port: +process.env.DB_PORT!,
+    database: process.env.DB_NAME,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    entities: [
+      User,
+      Team,
+      Role,
+      TeamMember,
+      Project,
+      SdkKey,
+      ErrorEvent,
+      ErrorGroup,
+    ],
+  });
 
-      return AppDataSource
+  return AppDataSource;
 }
 
 async function run() {
   const dataSource = getAppDataSource();
-  
+
   try {
     await dataSource.initialize();
 
@@ -46,7 +56,7 @@ async function run() {
       await resetSeed(dataSource);
     }
 
-    if (action === 'generate'){
+    if (action === 'generate') {
       console.log('🌱 Seeding MVP data...');
       await seedMVP(dataSource);
     }
@@ -54,7 +64,6 @@ async function run() {
     await dataSource.destroy();
     console.log('✅ Done');
     process.exit(0);
-    
   } catch (error) {
     console.log('Use: yarn run seed generate | yarn run seed reset');
     console.error('❌ Seed error:', error);
@@ -64,8 +73,6 @@ async function run() {
     process.exit(1);
   }
 }
-
-
 
 // async function run() {
 //     await getAppDataSource().initialize();
