@@ -9,6 +9,7 @@ import { ErrorEventsModule } from './modules/error-events/error-events.module';
 import { ErrorGroupsModule } from './modules/error-groups/error-groups.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SdkKeysModule } from './modules/sdk-keys/sdk-keys.module';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -41,6 +42,8 @@ import { SdkKeysModule } from './modules/sdk-keys/sdk-keys.module';
     AuthModule,
 
     SdkKeysModule,
+
+    RolesModule,
 
 
   ],

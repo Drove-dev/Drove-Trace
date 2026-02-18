@@ -19,22 +19,19 @@ import { JwtStrategy } from './estrategies/jwt.strategy';
     TypeOrmModule.forFeature([User]),
 
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
-      }),
+      useFactory: (configService: ConfigService) => {
+        return {
+          secret: configService.get<string>('JWT_SECRET'),
+          signOptions: { expiresIn: '1h' },
+        };
+      },
     }),
   ],
 
-  exports:[
-    TypeOrmModule,
-    JwtModule,
-    PassportModule,
-    JwtStrategy
-  ]
+  exports: [TypeOrmModule, JwtModule, PassportModule, JwtStrategy],
 })
 export class AuthModule {}

@@ -2,6 +2,7 @@ import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength } from 'class-valid
 import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
+  
   @IsEmail({}, { message: 'Email must be a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   @Transform(({ value }) => value?.toLowerCase().trim())
@@ -19,4 +20,5 @@ export class CreateUserDto {
   @MaxLength(100, { message: 'Name must not exceed 100 characters' })
   @Transform(({ value }) => value?.trim())
   name: string;
+
 }
