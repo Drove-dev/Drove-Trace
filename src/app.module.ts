@@ -10,6 +10,8 @@ import { ErrorGroupsModule } from './modules/error-groups/error-groups.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SdkKeysModule } from './modules/sdk-keys/sdk-keys.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { RolesModule } from './modules/roles/roles.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
-      synchronize: true //Disable this option in prod
+      synchronize: true, //TODO: Disable this option in production
     }),
 
     UsersModule,
@@ -44,8 +46,12 @@ import { RolesModule } from './modules/roles/roles.module';
     SdkKeysModule,
 
     RolesModule,
-
-
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard, // Tu nuevo Guard que entiende @Public()
+    },
   ],
 })
 export class AppModule {}
