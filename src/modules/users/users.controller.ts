@@ -26,28 +26,28 @@ import { IsPublic } from '../auth/decorators/is-public/is-public.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @IsPublic()
-  @Post('register')
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+  // @IsPublic()
+  // @Post('register')
+  // @HttpCode(HttpStatus.CREATED)
+  // create(@Body() createUserDto: CreateUserDto) {
+  //   return this.usersService.create(createUserDto);
+  // }
 
-  @Roles(ValidRoles.admin)
+  @Roles(ValidRoles.developer)
   @Get()
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.usersService.findAll();
   }
 
-  @Roles(ValidRoles.admin)
+  @Roles(ValidRoles.developer)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
-  @Roles(ValidRoles.admin)
+  @Roles(ValidRoles.developer)
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

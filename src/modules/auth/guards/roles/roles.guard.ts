@@ -9,6 +9,7 @@ import { ROLES_KEY } from '../../decorators/roles/roles.decorator';
 import { Reflector } from '@nestjs/core';
 import { ValidRoles } from '../../interfaces/valid-roles';
 import { IS_PUBLIC_KEY } from '../../decorators/is-public/is-public.decorator';
+import { UserWithRole } from '../../interfaces';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -17,35 +18,49 @@ export class RolesGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    // Validate if the route is public
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    // Is public route
+    if (this.isPublic(context)) return true;
+
+    // Get valid roles from decorator
+    const validRoles = this.getValidRoles(context);
+
+    // Get user with role from request
+    const req = context.switchToHttp().getRequest();
+
+    // If no user or no valid roles, return false
+    if (!req.user || !validRoles) return false;
+
+    // Check if user has a valid role
+    if (this.hasRole(req.user, validRoles)) return true;
+
+    // If user has no valid role, throw ForbiddenException
+    throw new ForbiddenException(`User need a valid role.`);
+  }
+
+  private isPublic(context: ExecutionContext): boolean {
+    return this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
+  }
 
-    if (isPublic) return true;
+  private getValidRoles(context: ExecutionContext): ValidRoles[] {
+    return this.reflector.getAllAndOverride<ValidRoles[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+  }
 
-    // Validate if the route has a valid role
-    const validRoles = this.reflector.getAllAndOverride<ValidRoles[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
-
-    if (!validRoles) return true;
-
-    const req = context.switchToHttp().getRequest();
-
-    if (!req.user) return false;
-
-    const userRoles = req.user.role.map((role: any) => role.role);
+  private hasRole(user: UserWithRole, validRoles: ValidRoles[]): boolean {
+    const userRoles = user.role.map((role: any) => role.role);
 
     for (let i = 0; i < userRoles.length; i++) {
       const role = userRoles[i];
-      if (validRoles.includes(role)) {
-        return true;
-      }
+      if (role === ValidRoles.admin) return true;
+
+      if (validRoles.includes(role)) return true;
     }
 
-    throw new ForbiddenException(`User need a valid role.`);
+    return false;
   }
 }

@@ -75,7 +75,7 @@ export class TeamMembersService {
 
   async findAll() {
     return this.teamMemberRepository.find({
-      relations: ['team', 'user'],
+      relations: ['team', 'user', 'role'],
       select: {
         id: true,
         role: true,
@@ -98,7 +98,7 @@ export class TeamMembersService {
   async findOne(id: string) {
     const member = await this.teamMemberRepository.findOne({
       where: { id },
-      relations: ['team', 'user'],
+      relations: ['team', 'user', 'role'],
       select: {
         id: true,
         role: true,

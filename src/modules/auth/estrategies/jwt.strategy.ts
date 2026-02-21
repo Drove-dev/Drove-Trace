@@ -8,15 +8,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { User } from 'src/modules/users/entities/user.entity';
 import { Repository } from 'typeorm';
-
-interface UserWithRole {
-  id: string;
-  email: string;
-  role: {
-    id: string;
-    role: string;
-  }[];
-}
+import { UserWithRole } from '../interfaces';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

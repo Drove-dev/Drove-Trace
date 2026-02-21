@@ -1,9 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ErrorGroupsService } from './error-groups.service';
 import { CreateErrorGroupDto } from './dto/create-error-group.dto';
 import { UpdateErrorGroupDto } from './dto/update-error-group.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { RolesGuard } from '../auth/guards/guards-index';
 
 @Controller('error-groups')
+@ApiBearerAuth('jwt')
+@UseGuards(RolesGuard)
 export class ErrorGroupsController {
   constructor(private readonly errorGroupsService: ErrorGroupsService) {}
 
@@ -23,7 +36,10 @@ export class ErrorGroupsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateErrorGroupDto: UpdateErrorGroupDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateErrorGroupDto: UpdateErrorGroupDto,
+  ) {
     return this.errorGroupsService.update(id, updateErrorGroupDto);
   }
 

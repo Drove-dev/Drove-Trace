@@ -1,9 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SdkKeysService } from './sdk-keys.service';
 import { CreateSdkKeyDto } from './dto/create-sdk-key.dto';
 import { UpdateSdkKeyDto } from './dto/update-sdk-key.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { RolesGuard } from '../auth/guards/guards-index';
 
 @Controller('sdk-keys')
+@ApiBearerAuth('jwt')
+@UseGuards(RolesGuard)
 export class SdkKeysController {
   constructor(private readonly sdkKeysService: SdkKeysService) {}
 
