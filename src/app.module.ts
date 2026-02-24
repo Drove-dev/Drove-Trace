@@ -10,6 +10,9 @@ import { ErrorGroupsModule } from './modules/error-groups/error-groups.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SdkKeysModule } from './modules/sdk-keys/sdk-keys.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth/jwt-auth.guard';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -24,7 +27,7 @@ import { RolesModule } from './modules/roles/roles.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
-      synchronize: true //Disable this option in prod
+      synchronize: true, //TODO: Disable this option in production
     }),
 
     UsersModule,
@@ -45,7 +48,22 @@ import { RolesModule } from './modules/roles/roles.module';
 
     RolesModule,
 
-
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 10, // 10 requests per minute
+      },
+    ]),
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

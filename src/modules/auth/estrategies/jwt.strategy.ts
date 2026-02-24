@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { User } from 'src/modules/users/entities/user.entity';
 import { Repository } from 'typeorm';
+import { UserWithRole } from '../interfaces';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { id: string }): Promise<{}> {
+  async validate(payload: { id: string }): Promise<UserWithRole> {
     const { id } = payload;
 
     // const user = await this.userRepository.findOneBy({ id });
@@ -34,8 +35,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!user) throw new UnauthorizedException('Token not valid');
 
-    // const { team_members, ...rest } = user;
-
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.team_members.map((team_member) => {
+        return {
+          id: team_member.id,
+          role: team_member.role.name,
+        };
+      }),
+    };
   }
 }

@@ -1,6 +1,5 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -10,8 +9,6 @@ import {
 import { Team } from '../../teams/entities/team.entity';
 import { User } from '../../users/entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
-
-export type TeamMemberRole = 'admin' | 'developer' | 'viewer';
 
 @Entity('team_members')
 export class TeamMember {
@@ -29,9 +26,6 @@ export class TeamMember {
   @ManyToOne(() => Role, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'roleId' })
   role: Role;
-
-  // @Column({ type: 'varchar', length: 20, default: 'viewer' })
-  // role: TeamMemberRole;
 
   @CreateDateColumn()
   createdAt: Date;

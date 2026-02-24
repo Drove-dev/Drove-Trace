@@ -21,7 +21,7 @@ export class TeamsService {
     private readonly teamRepository: Repository<Team>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createTeamDto: CreateTeamDto) {
     const owner = await this.userRepository.findOne({
@@ -32,6 +32,15 @@ export class TeamsService {
         `User with ID ${createTeamDto.ownerId} not found`,
       );
     }
+    const team = await this.teamRepository.findOne({
+      where: { name: createTeamDto.name, owner: { id: createTeamDto.ownerId } },
+    });
+    if (team) {
+      throw new BadRequestException(
+        `Team with name ${createTeamDto.name} and owner ${owner.name} already exists`,
+      );
+    }
+
     try {
       const team = this.teamRepository.create({
         name: createTeamDto.name,
@@ -133,8 +142,6 @@ export class TeamsService {
   }
 
   async remove(id: string) {
-    // TODO: Add validations params
-    
     const team = await this.findOneEntity(id);
     await this.teamRepository.remove(team);
     return { message: `Team ${id} has been deleted` };
@@ -142,12 +149,16 @@ export class TeamsService {
 
   private handleDBExceptions(error: any): never {
     if (error?.code === '23505') {
-      throw new BadRequestException(error.detail ?? 'Duplicate or constraint violation');
+      throw new BadRequestException(
+        error.detail ?? 'Duplicate or constraint violation',
+      );
     }
     if (error?.code === '23503') {
       throw new BadRequestException('Referenced entity (e.g. owner) not found');
     }
     this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
+    throw new InternalServerErrorException(
+      'Unexpected error, check server logs',
+    );
   }
 }

@@ -28,7 +28,7 @@ async function bootstrap() {
     .setDescription(
       'Error monitoring platform with SDK ingestion + team visibility',
     )
-    .setVersion('1.0')
+    .setVersion('0.0.1')
     // .addTag(' Errors')
     .addBearerAuth(
       {

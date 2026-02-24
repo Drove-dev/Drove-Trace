@@ -103,7 +103,7 @@ export class SdkKeysService {
     return sdkKey;
   }
 
-  private async findOneEntity(id: string): Promise<SdkKey> {
+  private async findOneById(id: string): Promise<SdkKey> {
     const sdkKey = await this.sdkKeyRepository.findOne({
       where: { id },
       relations: ['project'],
@@ -115,9 +115,21 @@ export class SdkKeysService {
 
     return sdkKey;
   }
+  async findOneBykey(key: string): Promise<SdkKey> {
+    const sdkKey = await this.sdkKeyRepository.findOne({
+      where: { key },
+      relations: ['project'],
+    });
+
+    if (!sdkKey) {
+      throw new NotFoundException(`SDK key with key ${key} not found`);
+    }
+
+    return sdkKey;
+  }
 
   async update(id: string, updateSdkKeyDto: UpdateSdkKeyDto) {
-    const sdkKey = await this.findOneEntity(id);
+    const sdkKey = await this.findOneById(id);
     const { projectId, key, environment, name, isActive, expiresAt, metadata } = updateSdkKeyDto;
 
     try {
@@ -148,7 +160,7 @@ export class SdkKeysService {
   }
 
   async remove(id: string) {
-    const sdkKey = await this.findOneEntity(id);
+    const sdkKey = await this.findOneById(id);
     await this.sdkKeyRepository.remove(sdkKey);
     return { message: `SDK key ${id} has been deleted` };
   }
