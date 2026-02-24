@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateErrorGroupDto } from './dto/create-error-group.dto';
@@ -105,6 +99,16 @@ export class ErrorGroupsService {
     return group;
   }
 
+  async findByFingerprint(fingerprint: string) {
+    const group = await this.errorGroupRepository.findOne({
+      where: { fingerprint },
+      relations: ['project'],
+    });
+
+    if (!group) return null;
+    return group;
+  }
+
   async update(id: string, updateErrorGroupDto: UpdateErrorGroupDto) {
     const group = await this.findOneEntity(id);
     const { projectId, fingerprint, firstSeen, lastSeen, occurrences } =
@@ -155,4 +159,3 @@ export class ErrorGroupsService {
     );
   }
 }
-
