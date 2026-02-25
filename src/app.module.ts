@@ -1,6 +1,9 @@
+import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
 import { UsersModule } from './modules/users/users.module';
 import { TeamsModule } from './modules/teams/teams.module';
 import { TeamMembersModule } from './modules/team-members/team-members.module';
@@ -10,9 +13,8 @@ import { ErrorGroupsModule } from './modules/error-groups/error-groups.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SdkKeysModule } from './modules/sdk-keys/sdk-keys.module';
 import { RolesModule } from './modules/roles/roles.module';
-import { APP_GUARD } from '@nestjs/core';
+
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth/jwt-auth.guard';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
