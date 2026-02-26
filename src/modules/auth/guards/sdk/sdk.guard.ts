@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Project } from 'src/modules/projects/entities/project.entity';
+import { Project } from '../../../projects/entities/project.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
