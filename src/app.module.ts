@@ -1,6 +1,6 @@
 import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
@@ -16,20 +16,30 @@ import { RolesModule } from './modules/roles/roles.module';
 
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth/jwt-auth.guard';
 
+import { JoiValidationSchema } from './config/joi.validation';
+import { EnvConfiguration } from './config/env.config';
+
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      load: [EnvConfiguration],
+      validationSchema: JoiValidationSchema,
+    }),
 
     // DB Setting
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT!,
-      database: process.env.DB_NAME,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      autoLoadEntities: true,
-      synchronize: true, //TODO: Disable this option in production
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('database.host'),
+        port: configService.get<number>('database.port'),
+        database: configService.get<string>('database.name'),
+        username: configService.get<string>('database.username'),
+        password: configService.get<string>('database.password'),
+        autoLoadEntities: true,
+        synchronize: true, //TODO: Disable this option in production
+      }),
     }),
 
     UsersModule,
