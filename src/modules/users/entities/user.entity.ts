@@ -1,4 +1,4 @@
-import { TeamMember } from 'src/modules/team-members/entities/team-member.entity';
+import { TeamMember } from '../../team-members/entities/team-member.entity';
 import {
   Entity,
   Column,
