@@ -1,22 +1,15 @@
+<div align="center">
 
-<div style="text-align:center;">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 100" width="220" height="100">
-  <!-- Icon -->
-  <g transform="translate(10, 10)">
-    <circle cx="40" cy="40" r="36" fill="none" stroke="#fff" stroke-width="2.5"/>
-    <polyline points="12,40 23,40 29,22 36,57 43,30 49,50 55,40 68,40"
-      fill="none" stroke="#fff" stroke-width="2.5"
-      stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="40" cy="40" r="3.5" fill="#DD0031"/>
-  </g>
-  <!-- Errly text -->
-  <g transform="translate(102, 28)">
-    <text x="0" y="28" font-family="'Segoe UI', system-ui, sans-serif" font-size="30" font-weight="800" fill="#fff" letter-spacing="-1">Err</text>
-    <text x="41" y="28" font-family="'Segoe UI', system-ui, sans-serif" font-size="30" font-weight="800" fill="#DD0031" letter-spacing="-1">ly</text>
-  </g>
-  </svg>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMjAgMTAwIiB3aWR0aD0iMjIwIiBoZWlnaHQ9IjEwMCI+CiAgPHJlY3Qgd2lkdGg9IjIyMCIgaGVpZ2h0PSIxMDAiIGZpbGw9Im5vbmUiIHJ4PSIxMiIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLCAxMCkiPgogICAgPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iMzYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4ZmFmYyIgc3Ryb2tlLXdpZHRoPSIyLjUiLz4KICAgIDxwb2x5bGluZSBwb2ludHM9IjEyLDQwIDIzLDQwIDI5LDIyIDM2LDU3IDQzLDMwIDQ5LDUwIDU1LDQwIDY4LDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmOGZhZmMiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICAgIDxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjMuNSIgZmlsbD0iI0REMDAzMSIvPgogIDwvZz4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDIsIDI4KSI+CiAgICA8dGV4dCB4PSIwIiB5PSIyOCIgZm9udC1mYW1pbHk9IidTZWdvZSBVSScsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2Y4ZmFmYyIgbGV0dGVyLXNwYWNpbmc9Ii0xIj5FcnI8L3RleHQ+CiAgICA8dGV4dCB4PSI0MSIgeT0iMjgiIGZvbnQtZmFtaWx5PSInU2Vnb2UgVUknLCBzeXN0ZW0tdWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzAiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiNERDAwMzEiIGxldHRlci1zcGFjaW5nPSItMSI+bHk8L3RleHQ+CiAgPC9nPgo8L3N2Zz4=">
+  
+  <source media="(prefers-color-scheme: light)" srcset="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMjAgMTAwIiB3aWR0aD0iMjIwIiBoZWlnaHQ9IjEwMCI+CiAgPHJlY3Qgd2lkdGg9IjIyMCIgaGVpZ2h0PSIxMDAiIGZpbGw9Im5vbmUiIHJ4PSIxMiIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLCAxMCkiPgogICAgPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iMzYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzBmMTcyYSIgc3Ryb2tlLXdpZHRoPSIyLjUiLz4KICAgIDxwb2x5bGluZSBwb2ludHM9IjEyLDQwIDIzLDQwIDI5LDIyIDM2LDU3IDQzLDMwIDQ5LDUwIDU1LDQwIDY4LDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICAgIDxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjMuNSIgZmlsbD0iI0REMDAzMSIvPgogIDwvZz4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDIsIDI4KSI+CiAgICA8dGV4dCB4PSIwIiB5PSIyOCIgZm9udC1mYW1pbHk9IidTZWdvZSBVSScsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBmMTcyYSIgbGV0dGVyLXNwYWNpbmc9Ii0xIj5FcnI8L3RleHQ+CiAgICA8dGV4dCB4PSI0MSIgeT0iMjgiIGZvbnQtZmFtaWx5PSInU2Vnb2UgVUknLCBzeXN0ZW0tdWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzAiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiNERDAwMzEiIGxldHRlci1zcGFjaW5nPSItMSI+bHk8L3RleHQ+CiAgPC9nPgo8L3N2Zz4=">
+
+  <img alt="Errly Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMjAgMTAwIiB3aWR0aD0iMjIwIiBoZWlnaHQ9IjEwMCI+CiAgPHJlY3Qgd2lkdGg9IjIyMCIgaGVpZ2h0PSIxMDAiIGZpbGw9Im5vbmUiIHJ4PSIxMiIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLCAxMCkiPgogICAgPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iMzYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzBmMTcyYSIgc3Ryb2tlLXdpZHRoPSIyLjUiLz4KICAgIDxwb2x5bGluZSBwb2ludHM9IjEyLDQwIDIzLDQwIDI5LDIyIDM2LDU3IDQzLDMwIDQ5LDUwIDU1LDQwIDY4LDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICAgIDxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjMuNSIgZmlsbD0iI0REMDAzMSIvPgogIDwvZz4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDIsIDI4KSI+CiAgICA8dGV4dCB4PSIwIiB5PSIyOCIgZm9udC1mYW1pbHk9IidTZWdvZSBVSScsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBmMTcyYSIgbGV0dGVyLXNwYWNpbmc9Ii0xIj5FcnI8L3RleHQ+CiAgICA8dGV4dCB4PSI0MSIgeT0iMjgiIGZvbnQtZmFtaWx5PSInU2Vnb2UgVUknLCBzeXN0ZW0tdWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzAiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiNERDAwMzEiIGxldHRlci1zcGFjaW5nPSItMSI+bHk8L3RleHQ+CiAgPC9nPgo8L3N2Zz4=" width="220">
+</picture>
 
 </div>
+
 
 # Error Monitor Platform
 
