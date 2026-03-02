@@ -1,0 +1,100 @@
+<div class="min-h-screen flex items-center justify-center p-4"
+     style="background: linear-gradient(135deg, var(--bg-base), var(--bg-surface-2))">
+
+  <div class="w-full max-w-md">
+
+    <!-- Brand -->
+    <div class="text-center mb-8">
+      <img src="assets/images/logo/Logo_Vertical_Dark.svg" alt="logo" class="mx-auto w-32 mb-1">
+      <p class="text-sm mt-1" style="color: var(--text-secondary)">Sign in to your workspace</p>
+    </div>
+
+    <!-- Card -->
+    <div class="card card-body">
+
+      <!-- Error global -->
+      @if (error()) {
+        <div class="alert-error mb-6">
+          <lucide-angular name="circle-alert" [size]="16" class="shrink-0" />
+          {{ error() }}
+        </div>
+      }
+
+      <form (submit)="submit($event)">
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="label">Email address</label>
+          <input
+            type="email"
+            [formField]="form.email"
+            placeholder="you@example.com"
+            class="input"
+            [class.input-error]="form.email().touched() && form.email().invalid()" />
+
+          @if (form.email().touched() && form.email().invalid()) {
+            @for (error of form.email().errors(); track error) {
+              <p class="field-error">{{ error.message }}</p>
+            }
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <div class="flex items-center justify-between mb-2">
+            <label class="label" style="margin-bottom: 0">Password</label>
+            <a routerLink="/auth/forgot-password"
+               class="text-xs text-indigo-400 hover:text-indigo-300 transition">
+              Forgot password?
+            </a>
+          </div>
+
+          <div class="relative">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              [formField]="form.password"
+              placeholder="••••••••"
+              class="input pr-11"
+              [class.input-error]="form.password().touched() && form.password().invalid()" />
+
+            <button
+              type="button"
+              (click)="showPassword.update(v => !v)"
+              class="absolute right-3 top-1/2 -translate-y-1/2 btn-ghost w-7 h-7 p-0">
+              @if (showPassword()) {
+                <lucide-angular name="eye-off" [size]="16" />
+              } @else {
+                <lucide-angular name="eye" [size]="16" />
+              }
+            </button>
+          </div>
+
+          @if (form.password().touched() && form.password().invalid()) {
+            @for (error of form.password().errors(); track error) {
+              <p class="field-error">{{ error.message }}</p>
+            }
+          }
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" [disabled]="loading()" class="btn-primary w-full">
+          @if (loading()) {
+            <lucide-angular name="refresh-cw" [size]="16" class="spinner" />
+            Signing in...
+          } @else {
+            Sign in
+          }
+        </button>
+
+      </form>
+
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-xs mt-6" style="color: var(--text-muted)">
+      © 2025 Error Monitor. All rights reserved.
+    </p>
+
+  </div>
+
+</div>

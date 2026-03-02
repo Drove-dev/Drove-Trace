@@ -1,0 +1,12 @@
+<div class="flex h-screen overflow-hidden" style="background-color: var(--bg-base)">
+
+  <app-sidebar />
+
+  <div class="flex flex-col flex-1 overflow-hidden transition-all duration-300">
+    <app-navbar />
+    <main class="flex-1 overflow-y-auto p-6">
+      <router-outlet />
+    </main>
+  </div>
+
+</div>
