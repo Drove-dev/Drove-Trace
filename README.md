@@ -1,22 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/assets/images/logo/Logo_Horizontal_Dark_Mode.svg">
+    <source media="(prefers-color-scheme: light)" srcset="public/assets/images/logo/Logo_Horizontal_Light.svg">
+    <img alt="Errly Logo" src="public/assets/images/logo/Logo_Horizontal_Light.svg" width="220">
+  </picture>
+</p>
 
-<div style="text-align:center;">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 100" width="220" height="100">
-  <!-- Icon -->
-  <g transform="translate(10, 10)">
-    <circle cx="40" cy="40" r="36" fill="none" stroke="#fff" stroke-width="2.5"/>
-    <polyline points="12,40 23,40 29,22 36,57 43,30 49,50 55,40 68,40"
-      fill="none" stroke="#fff" stroke-width="2.5"
-      stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="40" cy="40" r="3.5" fill="#DD0031"/>
-  </g>
-  <!-- Errly text -->
-  <g transform="translate(102, 28)">
-    <text x="0" y="28" font-family="'Segoe UI', system-ui, sans-serif" font-size="30" font-weight="800" fill="#fff" letter-spacing="-1">Err</text>
-    <text x="41" y="28" font-family="'Segoe UI', system-ui, sans-serif" font-size="30" font-weight="800" fill="#DD0031" letter-spacing="-1">ly</text>
-  </g>
-  </svg>
-
-</div>
 
 # Error Monitor Platform
 
