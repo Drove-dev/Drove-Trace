@@ -3,7 +3,7 @@ import { AuthStore } from '../../store/auth/auth.store';
 import { UIStore } from '../../store/ui/ui.store';
 
 @Injectable({ providedIn: 'root' })
-export class StorageSyncService {
+export class StorageSync {
 
   private authStore = inject(AuthStore);
   private uiStore = inject(UIStore);

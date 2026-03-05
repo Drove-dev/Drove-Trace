@@ -1,0 +1,74 @@
+<p-dialog
+  [header]="isEdit() ? 'Edit User' : 'New User  '"
+  [visible]="visible()"
+  (onHide)="closeModal()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  maskStyleClass="backdrop-blur-sm"
+  styleClass="card border-none overflow-hidden"
+  [style]="{ width: '30rem', background: 'var(--bg-surface)', color: 'var(--text-primary)' }"
+  [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }"
+>
+  <div class="flex flex-col py-2">
+
+    <div class="form-group">
+      <label class="label">Name</label>
+      <input
+        type="text"
+        [formField]="userForm.name"
+        placeholder="Ej. Juan Pérez"
+        class="input"
+        [class.input-error]="userForm.name().touched() && userForm.name().invalid()"
+      />
+      @if (userForm.name().touched() && userForm.name().invalid()) {
+        @for (error of userForm.name().errors(); track error) {
+          <span class="field-error">{{ error.message }}</span>
+        }
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="label">Email</label>
+      <input
+        type="email"
+        [formField]="userForm.email"
+        placeholder="correo@ejemplo.com"
+        class="input"
+        [class.input-error]="userForm.email().touched() && userForm.email().invalid()"
+      />
+      @if (userForm.email().touched() && userForm.email().invalid()) {
+        @for (error of userForm.email().errors(); track error) {
+          <span class="field-error">{{ error.message }}</span>
+        }
+      }
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="flex items-center justify-end gap-3 p-4 border-t border-[var(--border)]">
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="btn-secondary border-none bg-transparent"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        (click)="save()"
+        [disabled]="isLoading() || (isSubmitted() && userForm().invalid())"
+        class="btn-primary min-w-[120px]"
+      >
+        @if (isLoading()) {
+          <div class="spinner border-2 border-white/30 border-t-white rounded-full"></div>
+          <span>Guardando...</span>
+        } @else {
+          <lucide-angular name="save" [size]="18"></lucide-angular>
+          <span>Save</span>
+        }
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

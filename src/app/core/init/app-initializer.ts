@@ -3,7 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../store/auth/auth.store';
 import { UIStore } from '../../store/ui/ui.store';
 import { Theme } from '../../store/ui/ui.store';
-import { AuthService } from '../services/auth';
+import { Auth } from '../services/index';
 
 @Injectable({ providedIn: 'root' })
 export class AppInitializer {
@@ -24,10 +24,10 @@ export class AppInitializer {
     if (token) {
       try {
         this.authStore.setToken(token);
-        const { user } = await firstValueFrom(
-          inject(AuthService).getMe()
-        );
-        this.authStore.setUser(user);
+        // const { user } = await firstValueFrom(
+        //   inject(Auth).getMe()
+        // );
+        // this.authStore.setUser(user);
       } catch {
         // Token expired or invalid → clear everything
         localStorage.removeItem('token');

@@ -1,1 +1,6 @@
-<p>users-list works!</p>
+
+<basic-table
+  [dataSource]="usersStore"
+  [storeType]="storeType()"
+  [colunms]="['name', 'email', 'createdAt', 'actions']"
+  >
