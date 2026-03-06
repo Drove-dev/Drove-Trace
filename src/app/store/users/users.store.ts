@@ -7,7 +7,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 export class UsersStore {
   private usersService = inject(Users);
 
-  readonly currentPage = signal(0);
+  readonly currentPage = signal(1);
   readonly searchByName = signal<string>('');
 
   readonly usersResource = rxResource({
@@ -16,7 +16,7 @@ export class UsersStore {
   });
 
   readonly filteredList = computed(() => {
-    const list = this.usersResource.value() ?? [];
+    const list = this.usersResource.value()?.data ?? [];
     const term = this.searchByName().toLowerCase().trim();
 
     if (!term) return list;
@@ -33,7 +33,7 @@ export class UsersStore {
         return of(null);
       }
 
-      return this.usersService.getUserById(name);
+      return this.usersService.getUserByName(name);
     },
   });
 
@@ -57,7 +57,15 @@ export class UsersStore {
   add(user: User) {
     this.usersService.createUser(user).subscribe({
       next: (newUser) => {
-        this.usersResource.update((current) => (current ? [...current, newUser] : [newUser]));
+        // this.usersResource.update((current) => [newUser, ...(current ?? [])]);
+        this.usersResource.update((current) => {
+          if (!current) return { data: [newUser], total: 1 };
+          return {
+            ...current,
+            data: [newUser, ...current.data],
+            total: current.total + 1
+          };
+        });
       },
       error: (err) => console.error('Error al crear:', err),
     });
@@ -66,7 +74,15 @@ export class UsersStore {
   remove(id: string) {
     this.usersService.deleteUser(id).subscribe({
       next: () => {
-        this.usersResource.update((current) => current?.filter((u) => u.id !== id));
+        // this.usersResource.update((current) => current?.filter((u) => u.id !== id));
+        this.usersResource.update((current) => {
+          if (!current) return current;
+          return {
+            ...current,
+            data: current.data.filter((u) => u.id !== id),
+            total: current.total - 1
+          };
+        });
       },
       error: (err) => console.error('Error al borrar:', err),
     });

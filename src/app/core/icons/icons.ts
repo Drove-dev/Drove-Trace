@@ -31,6 +31,7 @@ import {
   LucideIconData,
   Trash,
   Save,
+  Box,
 } from 'lucide-angular';
 
 export const APP_ICONS = {
@@ -64,4 +65,5 @@ export const APP_ICONS = {
   ChevronRight,
   Trash,
   Save,
+  Box
 };

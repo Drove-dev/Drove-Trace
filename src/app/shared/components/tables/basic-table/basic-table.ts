@@ -48,7 +48,7 @@ export class BasicTable implements OnInit {
   // Signals
   title = signal<string>('');
   data = signal<UsersStore | null>(null);
-  page = signal(1);
+  page = signal(0);
   rows = signal(10);
   totalRecords = signal(0);
   error = signal<string | null>(null);
@@ -58,6 +58,8 @@ export class BasicTable implements OnInit {
   }
 
   onPageChange(event: any) {
+    console.log(event);
+
     this.page.update(() => event.first);
     this.rows.update(() => event.rows);
     this.totalRecords.update(() => event.totalRecords);

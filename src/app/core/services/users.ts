@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { User } from '../models/user.model';
+import { User, UsersResponse } from '../models/user.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { delay, map, Observable } from 'rxjs';
+import { delay, map, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,18 +11,19 @@ export class Users {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
-  getUsers(getNextPage: number): Observable<User[]> {
-    // ?skip=${skip}&limit=${limit}
+  getUsers(page: number): Observable<UsersResponse> {
+    console.log(page );
 
-    return this.http.get<User[]>(`${this.apiUrl}/users`);
-    // .pipe(
-    //   delay(5000),
-    //   // map((users) => users.slice(0, 0)),
-    // );
+    return this.http.get<UsersResponse>(`${this.apiUrl}/users?page=${page}`)
+    .pipe(
+      // delay(5000),
+      // map((users) => users.slice(0, 0)),
+      tap((users) => console.log('Fetched users for page', users))
+    );
   }
 
-  getUserById(id: string) {
-    return this.http.get<User>(`${this.apiUrl}/users/${id}`);
+  getUserByName(name: string) {
+    return this.http.get<User>(`${this.apiUrl}/users/${name}`);
   }
 
   createUser(user: User) {

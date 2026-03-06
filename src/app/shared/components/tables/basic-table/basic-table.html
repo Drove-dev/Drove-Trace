@@ -63,11 +63,12 @@
       </tr>
     </ng-template>
   </p-table>
+
   <p-paginator
     (onPageChange)="onPageChange($event)"
-    [first]="data()?.currentPage() ?? 0"
+    [first]="((data()?.currentPage() ?? 1) - 1) * 15"
     [rows]="10"
-    [totalRecords]="data()?.filteredList()?.length ?? 0"
+    [totalRecords]="data()?.usersResource?.value()?.total ?? 0"
     [showFirstLastIcon]="false"
     [showCurrentPageReport]="true"
     currentPageReportTemplate="{first} - {last} of {totalRecords}"
