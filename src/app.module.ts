@@ -13,6 +13,7 @@ import { ErrorGroupsModule } from './modules/error-groups/error-groups.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SdkKeysModule } from './modules/sdk-keys/sdk-keys.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth/jwt-auth.guard';
 
@@ -59,6 +60,8 @@ import { EnvConfiguration } from './config/env.config';
     SdkKeysModule,
 
     RolesModule,
+
+    DashboardModule,
 
     ThrottlerModule.forRoot([
       {
