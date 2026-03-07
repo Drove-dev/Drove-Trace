@@ -1,91 +1,78 @@
 import { computed, inject, signal } from '@angular/core';
-import { User } from '../../core/models/user.model';
-import { Users } from '../../core/services/index';
-import { of } from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { map, tap } from 'rxjs';
+import { User, UsersResponse } from '../../core/models/user.model';
+import { Users } from '../../core/services/users';
+
+type StoreAction =
+  | { type: 'IDLE' }
+  | { type: 'LOADING_PAGE'; page: number }
+  | { type: 'SEARCHING'; name: string }
+  | { type: 'UPDATING'; user: Partial<User> }
+  | { type: 'DELETING'; id: string };
 
 export class UsersStore {
   private usersService = inject(Users);
 
-  readonly currentPage = signal(1);
-  readonly searchByName = signal<string>('');
+  private state = signal<StoreAction>({ type: 'LOADING_PAGE', page: 1 });
 
-  readonly usersResource = rxResource({
-    params: () => ({ page: this.currentPage() }),
-    stream: (ctx) => this.usersService.getUsers(ctx.params.page),
-  });
-
-  readonly filteredList = computed(() => {
-    const list = this.usersResource.value()?.data ?? [];
-    const term = this.searchByName().toLowerCase().trim();
-
-    if (!term) return list;
-
-    return list.filter((u) => u.name.toLowerCase().includes(term));
-  });
-
-  readonly apiSearchResource = rxResource({
-    params: () => ({ name: this.searchByName() }),
+  readonly usersResource = rxResource<UsersResponse, StoreAction>({
+    params: () => this.state(),
     stream: (ctx) => {
-      const name = ctx.params.name.toLowerCase().trim();
-
-      if (name.length < 3 || this.filteredList().length > 0) {
-        return of(null);
+      const action = ctx.params;
+      switch (action.type) {
+        case 'SEARCHING':
+          return this.usersService.getUserByName(action.name).pipe(
+            map((response) => {
+              return { data: response,total: response.length };
+            }),
+          );
+        case 'UPDATING':
+          return this.usersService.updateUser(action.user).pipe(
+            map(() => ({ data: [], total: 1 })),
+            tap(() => this.goToPage(1))
+          )
+        case 'DELETING':
+          return this.usersService.deleteUser(action.id).pipe(
+            tap(() => this.goToPage(1))
+          );
+        case 'LOADING_PAGE': return this.usersService.getUsers(action.page);
+        default:             return this.usersService.getUsers(1);
       }
-
-      return this.usersService.getUserByName(name);
-    },
-  });
-
-  readonly selectedUser = computed(() => {
-    if (this.filteredList().length > 0 && this.searchByName().length > 0) {
-      return this.filteredList()[0];
     }
-    return this.apiSearchResource.value();
   });
 
-  readonly isLoading = computed(
-    () =>
-      this.usersResource.isLoading() ||
-      (this.apiSearchResource.isLoading() && this.searchByName().length >= 3),
-  );
+  readonly statusMessage = computed(() => {
+    const s = this.state();
+    if (!this.usersResource.isLoading()) return 'Ready';
+    if (s.type === 'SEARCHING') return `Searching for "${s.name}"...`;
+    if (s.type === 'UPDATING') return 'Updating user...';
+    if (s.type === 'DELETING') return 'Deleting user...';
+    return 'Loading users...';
+  });
 
-  findUser(name: string) {
-    this.searchByName.set(name);
+  readonly users = computed(() => this.usersResource.value()?.data ?? []);
+  readonly total = computed(() => this.usersResource.value()?.total ?? 0);
+  readonly isLoading = this.usersResource.isLoading;
+
+  goToPage(page: number) {
+    this.state.set({ type: 'LOADING_PAGE', page });
   }
 
-  add(user: User) {
-    this.usersService.createUser(user).subscribe({
-      next: (newUser) => {
-        // this.usersResource.update((current) => [newUser, ...(current ?? [])]);
-        this.usersResource.update((current) => {
-          if (!current) return { data: [newUser], total: 1 };
-          return {
-            ...current,
-            data: [newUser, ...current.data],
-            total: current.total + 1
-          };
-        });
-      },
-      error: (err) => console.error('Error al crear:', err),
-    });
+  searchByName(name: string) {
+    if (name.length >= 3) {
+      this.state.set({ type: 'SEARCHING', name });
+    } else if (name.length === 0) {
+      this.goToPage(1);
+    }
   }
 
-  remove(id: string) {
-    this.usersService.deleteUser(id).subscribe({
-      next: () => {
-        // this.usersResource.update((current) => current?.filter((u) => u.id !== id));
-        this.usersResource.update((current) => {
-          if (!current) return current;
-          return {
-            ...current,
-            data: current.data.filter((u) => u.id !== id),
-            total: current.total - 1
-          };
-        });
-      },
-      error: (err) => console.error('Error al borrar:', err),
-    });
+  updateUser(user: any) {
+    this.state.set({ type: 'UPDATING', user });
+  }
+
+  delete(id: string) {
+    this.state.set({ type: 'DELETING', id });
   }
 
   reload() {

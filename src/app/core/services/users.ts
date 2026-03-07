@@ -12,8 +12,6 @@ export class Users {
   private apiUrl = environment.apiUrl;
 
   getUsers(page: number): Observable<UsersResponse> {
-    console.log(page );
-
     return this.http.get<UsersResponse>(`${this.apiUrl}/users?page=${page}`)
     .pipe(
       // delay(5000),
@@ -22,19 +20,27 @@ export class Users {
     );
   }
 
-  getUserByName(name: string) {
-    return this.http.get<User>(`${this.apiUrl}/users/${name}`);
+  getUserByName(name: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/users/${name}`)
+    // .pipe(
+    //   delay(5000),
+    //   // tap((updatedUser) => console.log('Updated user', updatedUser))
+    // );
   }
 
-  createUser(user: User) {
-    return this.http.post<User>(`${this.apiUrl}/users`, user);
+  updateUser(user: Partial<User>): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/users/${user.id}`, {name: user.name})
+    // .pipe(
+    //   delay(5000),
+    //   tap((updatedUser) => console.log('Updated user', updatedUser))
+    // );
   }
 
-  updateUser(id: string, user: User) {
-    return this.http.put<User>(`${this.apiUrl}/users/${id}`, user);
-  }
-
-  deleteUser(id: string) {
-    return this.http.delete(`${this.apiUrl}/users/${id}`);
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${id}`)
+    // .pipe(
+    //   delay(5000),
+    //   tap((deleted) => console.log('Deleted user', deleted))
+    // );
   }
 }

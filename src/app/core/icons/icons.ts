@@ -32,6 +32,8 @@ import {
   Trash,
   Save,
   Box,
+  LoaderPinwheel,
+  TrashIcon,
 } from 'lucide-angular';
 
 export const APP_ICONS = {
@@ -65,5 +67,7 @@ export const APP_ICONS = {
   ChevronRight,
   Trash,
   Save,
-  Box
+  Box,
+  LoaderPinwheel,
+  TrashIcon,
 };
