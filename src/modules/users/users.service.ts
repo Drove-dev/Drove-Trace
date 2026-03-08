@@ -106,8 +106,11 @@ export class UsersService {
       }
     }
 
-    Object.assign(user, updateUserDto);
-    return this.usersRepository.save(user);
+    // const updatedUser = Object.assign(user, updateUserDto);
+    const updatedUser = this.usersRepository.merge(user, updateUserDto);
+    this.usersRepository.update(id, updatedUser);
+    await this.usersRepository.save(updatedUser);
+    return updatedUser;
   }
 
   async remove(id: string): Promise<{ message: string }> {

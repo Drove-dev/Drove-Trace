@@ -66,7 +66,7 @@ import { EnvConfiguration } from './config/env.config';
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 1 minute
-        limit: 10, // 10 requests per minute
+        limit: 60, // 10 requests per minute
       },
     ]),
   ],
