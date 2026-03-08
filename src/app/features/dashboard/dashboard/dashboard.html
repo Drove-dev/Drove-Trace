@@ -1,84 +1,112 @@
-<div class="p-6 space-y-6">
+<div class="p-6 space-y-6 min-h-screen transition-colors duration-500 bg-slate-50 dark:bg-transparent">
 
-  <!-- Header -->
-  <div>
-    <h1 class="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
-    <p class="text-slate-400 text-sm mt-1">Welcome back. Here's what's happening.</p>
+  <div class="animate-in fade-in slide-in-from-left-4 duration-700">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h1>
+    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Welcome back. Here's what's happening.</p>
   </div>
 
-  <!-- Error -->
   @if (dashboardStore.error()) {
-    <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3">
+    <div class="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm rounded-xl px-4 py-3 animate-in zoom-in-95">
       {{ dashboardStore.error() }}
     </div>
   }
 
-  <!-- Loading -->
   @if (dashboardStore.loading()) {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       @for (i of [1,2,3,4]; track i) {
-        <div class="bg-slate-800/60 rounded-2xl p-6 animate-pulse h-32"></div>
+        <div class="bg-slate-200/60 dark:bg-slate-800/60 rounded-2xl p-6 animate-pulse h-32 border border-slate-300 dark:border-slate-700"></div>
       }
     </div>
   }
 
-  <!-- Stats -->
   @if (dashboardStore.summary(); as summary) {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-      <!-- Total Users -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Total Users</span>
-          <div class="w-8 h-8 bg-indigo-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
+      <a [routerLink]="['/users']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-slate-900/40
+                border border-slate-200 dark:border-slate-800/60
+                shadow-sm hover:shadow-xl dark:hover:shadow-indigo-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 dark:bg-indigo-500/10 blur-3xl group-hover:bg-indigo-500/20 transition-all"></div>
+
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-indigo-600 dark:group-hover:text-slate-200 transition-colors">Total Users</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400
+                        group-hover:bg-indigo-600 group-hover:text-white">
+              <lucide-angular name="user" [size]="20" />
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalUsers }}</p>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">+12%</span>
           </div>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.totalUsers }}</p>
-      </div>
+      </a>
 
-      <!-- Total Reports -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Total Reports</span>
-          <div class="w-8 h-8 bg-violet-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
+      <a [routerLink]="['/teams']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-slate-900/40
+                border border-slate-200 dark:border-slate-800/60
+                shadow-sm hover:shadow-xl dark:hover:shadow-violet-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-violet-500/5 dark:bg-violet-500/10 blur-3xl group-hover:bg-violet-500/20 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-violet-600 dark:group-hover:text-slate-200 transition-colors">Total Teams</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400
+                        group-hover:bg-violet-500 group-hover:text-white">
+              <lucide-angular name="users" [size]="20" />
+            </div>
           </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalTeams }}</p>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.totalReports }}</p>
-      </div>
+      </a>
 
-      <!-- Active Errors -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Active Errors</span>
-          <div class="w-8 h-8 bg-red-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+      <a [routerLink]="['/projects']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-slate-900/40
+                border border-slate-200 dark:border-slate-800/60
+                shadow-sm hover:shadow-xl dark:hover:shadow-blue-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 dark:bg-blue-500/10 blur-3xl group-hover:bg-blue-500/20 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-blue-600 dark:group-hover:text-slate-200 transition-colors">Total Projects</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400
+                        group-hover:bg-blue-500 group-hover:text-white">
+              <lucide-angular name="box" [size]="20" />
+            </div>
           </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalProjects }}</p>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.activeErrors }}</p>
-      </div>
+      </a>
 
-      <!-- Resolved Today -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Resolved Today</span>
-          <div class="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+      <a [routerLink]="['/logs']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-red-900/10
+                border border-red-100 dark:border-red-500/20
+                shadow-sm hover:shadow-xl hover:shadow-red-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-500/5 blur-3xl group-hover:bg-red-500/10 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-red-600 dark:text-red-400/70 text-xs font-bold tracking-widest uppercase">System Errors</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-500
+                        group-hover:bg-red-600 group-hover:text-white">
+              <lucide-angular name="triangle-alert" [size]="20" />
+            </div>
           </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalErrors }}</p>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.resolvedToday }}</p>
-      </div>
+      </a>
 
     </div>
   }
-
 </div>

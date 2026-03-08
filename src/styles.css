@@ -2,7 +2,7 @@
 
 @variant dark (&:where(.dark, .dark *));
 
-/* ── VARIABLES POR TEMA ──────────────────────────────────── */
+/* ── THEME VARIABLES ──────────────────────────────────── */
 :root {
   --bg-base:        #f1f5f9;
   --bg-surface:     #ffffff;
@@ -36,7 +36,7 @@
   }
 }
 
-/* ── UTILITIES (@utility soporta variants en Tailwind v4) ── */
+/* ── UTILITIES ── */
 
 @utility input {
   width: 100%;
@@ -330,4 +330,10 @@
   animation: spin 1s linear infinite;
   width: 1rem;
   height: 1rem;
+}
+
+/* Paginator */
+.p-paginator-page.p-paginator-page-selected {
+  background-color: var(--ring) !important;
+  color: white !important; /* O el color de texto que prefieras */
 }

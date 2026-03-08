@@ -1,17 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UsersList } from './users-list';
+import { ConfirmModal } from './confirm-modal';
 
-describe('UsersList', () => {
-  let component: UsersList;
-  let fixture: ComponentFixture<UsersList>;
+describe('ConfirmModal', () => {
+  let component: ConfirmModal;
+  let fixture: ComponentFixture<ConfirmModal>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UsersList],
-    }).compileComponents();
+      imports: [ConfirmModal]
+    })
+    .compileComponents();
 
-    fixture = TestBed.createComponent(UsersList);
+    fixture = TestBed.createComponent(ConfirmModal);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

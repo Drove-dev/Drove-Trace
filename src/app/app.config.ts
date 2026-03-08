@@ -7,9 +7,12 @@ import { AuthStore } from './store/auth/auth.store';
 import { UIStore } from './store/ui/ui.store';
 import { AppInitializer } from './core/init/app-initializer';
 import { DashboardStore } from './store/dashboard/dashboard.store';
-import { StorageSyncService } from './core/services/storage-sync';
+import { StorageSync } from './core/services/index';
 import { LUCIDE_ICONS, LucideAngularModule, LucideIconProvider } from 'lucide-angular';
 import { APP_ICONS } from './core/icons/icons';
+import { UsersStore } from './store/users/users.store';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
 
 
 export const appConfig: ApplicationConfig = {
@@ -22,13 +25,14 @@ export const appConfig: ApplicationConfig = {
     AuthStore,
     UIStore,
     DashboardStore,
+    UsersStore,
 
     // Services
-    StorageSyncService,  // ← Angular run the instance at startup
+    StorageSync ,  // ← Angular run the instance at startup
 
     // App initializer
     provideAppInitializer(() => {
-        inject(StorageSyncService); // ← forces instantiation before everything else
+        inject(StorageSync); // ← forces instantiation before everything else
         const init = inject(AppInitializer); // ← Angular will run the `run()` method at startup
         return init.run();
     }),
@@ -40,5 +44,10 @@ export const appConfig: ApplicationConfig = {
       multi: true,
       useValue: new LucideIconProvider(APP_ICONS)
     },
+    providePrimeNG({
+      theme: {
+          preset: Aura
+      }
+  })
   ]
 };

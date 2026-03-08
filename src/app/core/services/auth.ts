@@ -13,7 +13,7 @@ export interface LoginResponse {
 
 
 @Injectable({ providedIn: 'root' })
-export class AuthService {
+export class Auth {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
@@ -25,7 +25,7 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/auth/logout`, {});
   }
 
-  getMe() {
-    return this.http.get<{ user: User }>(`${this.apiUrl}/auth/me`);
-  }
+  // getMe() {
+  //   return this.http.get<{ user: User }>(`${this.apiUrl}/auth/me`);
+  // }
 }
