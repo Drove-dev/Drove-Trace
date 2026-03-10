@@ -34,6 +34,7 @@ import {
   Box,
   LoaderPinwheel,
   TrashIcon,
+  Key,
 } from 'lucide-angular';
 
 export const APP_ICONS = {
@@ -70,4 +71,5 @@ export const APP_ICONS = {
   Box,
   LoaderPinwheel,
   TrashIcon,
+  Key,
 };

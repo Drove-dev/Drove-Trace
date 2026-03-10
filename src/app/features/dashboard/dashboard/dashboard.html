@@ -109,4 +109,61 @@
 
     </div>
   }
+
+
+
+
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-5 border-bottom border-slate-200 dark:border-slate-800/60 flex justify-between items-center bg-slate-50/50 dark:bg-transparent">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Recent Critical Errors</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-500">Live from production systems</p>
+          </div>
+          <button class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline" [routerLink]="['/error-groups']">View all →</button>
+        </div>
+
+        <div class="divide-y divide-slate-100 dark:divide-slate-800/60">
+          @for (error of [1,2,3]; track error) {
+            <div class="group p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate group-hover:text-indigo-600 transition-colors">TypeError: Cannot read properties of undefined</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-500 mt-0.5">checkout.js:142 • 2m ago</div>
+              </div>
+              <svg width="60" height="20" class="hidden sm:block opacity-60">
+                <polyline points="0,18 5,10 10,14 15,4 20,2 25,6 30,0 35,3 40,6 45,8 50,4 55,6" fill="none" class="stroke-red-500" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <div class="text-right shrink-0">
+                <div class="text-sm font-black text-slate-900 dark:text-white">891</div>
+                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Occurrences</div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl p-5 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Projects Status</h3>
+
+        <div class="space-y-3">
+          @for (project of [1,2,3]; track project) {
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer group">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Web App</span>
+                <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-bold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Critical
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-widest">Production</span>
+                <span class="text-xs font-bold text-red-600 dark:text-red-400">142 errors</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
 </div>
