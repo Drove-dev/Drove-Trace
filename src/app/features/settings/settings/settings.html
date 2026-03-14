@@ -1,1 +1,153 @@
-<p>settings works!</p>
+<div class="p-6 space-y-6 min-h-screen transition-colors duration-700 bg-slate-50 dark:bg-transparent animate-in fade-in slide-in-from-left-4">
+  
+  <!-- Page Header -->
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Settings</h1>
+    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage your team preferences and notifications</p>
+  </div>
+
+  <!-- Team Settings Block -->
+  <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-sm" [formGroup]="settingsForm">
+    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-transparent">
+      <h3 class="text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400">Team Configuration</h3>
+    </div>
+
+    <div class="divide-y divide-slate-100 dark:divide-slate-800/60">
+      <!-- Team Name Row -->
+      <div class="px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Team Name</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Display name for your team</div>
+        </div>
+        <div class="w-full md:w-64">
+          <input type="text" class="input w-full" formControlName="name" placeholder="Team Name">
+        </div>
+      </div>
+
+      <!-- Team Slug Row -->
+      <div class="px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Team Slug</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Used in URLs and API</div>
+        </div>
+        <div class="w-full md:w-64">
+          <input type="text" class="input w-full" formControlName="slug" placeholder="team-slug">
+        </div>
+      </div>
+
+      <!-- Action Row -->
+      <div class="px-6 py-4 bg-slate-50/30 dark:bg-black/10 flex justify-end items-center">
+        <button 
+          class="btn-primary" 
+          (click)="onSave()" 
+          [disabled]="settingsForm.invalid || store.isSaving()">
+          @if (store.isSaving()) {
+            <div class="spinner border-2 border-white/30 border-t-white rounded-full"></div>
+            <span>Saving...</span>
+          } @else {
+            <lucide-angular name="save" [size]="18" />
+            <span>Save Changes</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Block -->
+  <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-sm">
+    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-transparent">
+      <h3 class="text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400">Notifications</h3>
+    </div>
+
+    <div class="divide-y divide-slate-100 dark:divide-slate-800/60">
+      <!-- Error Threshold Alerts -->
+      <div class="px-6 py-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Error threshold alerts</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Notify when errors spike above threshold</div>
+        </div>
+        
+        <button 
+          type="button" 
+          (click)="toggleNotification('errorThresholdAlerts')"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+          [class.bg-indigo-600]="store.notifications().errorThresholdAlerts"
+          [class.bg-slate-200]="!store.notifications().errorThresholdAlerts">
+          <span 
+            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            [class.translate-x-5]="store.notifications().errorThresholdAlerts"
+            [class.translate-x-0]="!store.notifications().errorThresholdAlerts">
+          </span>
+        </button>
+      </div>
+
+      <!-- Weekly Digest -->
+      <div class="px-6 py-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Weekly digest email</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Summary of errors every Monday</div>
+        </div>
+        
+        <button 
+          type="button" 
+          (click)="toggleNotification('weeklyDigestEmail')"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+          [class.bg-indigo-600]="store.notifications().weeklyDigestEmail"
+          [class.bg-slate-200]="!store.notifications().weeklyDigestEmail">
+          <span 
+            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            [class.translate-x-5]="store.notifications().weeklyDigestEmail"
+            [class.translate-x-0]="!store.notifications().weeklyDigestEmail">
+          </span>
+        </button>
+      </div>
+
+      <!-- New Member Alerts -->
+      <div class="px-6 py-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">New member alerts</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Notify when someone joins the team</div>
+        </div>
+
+        <button 
+          type="button" 
+          (click)="toggleNotification('newMemberAlerts')"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+          [class.bg-indigo-600]="store.notifications().newMemberAlerts"
+          [class.bg-slate-200]="!store.notifications().newMemberAlerts">
+          <span 
+            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            [class.translate-x-5]="store.notifications().newMemberAlerts"
+            [class.translate-x-0]="!store.notifications().newMemberAlerts">
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="bg-white dark:bg-slate-900/40 border border-red-500/20 dark:border-red-500/30 rounded-2xl overflow-hidden shadow-sm">
+    <div class="px-6 py-4 border-b border-red-500/10 bg-red-50/30 dark:bg-red-900/10">
+      <h3 class="text-xs font-bold tracking-widest uppercase text-red-600 dark:text-red-400">Danger Zone</h3>
+    </div>
+
+    <div class="px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="flex-1">
+        <div class="text-sm font-semibold text-slate-900 dark:text-slate-200">Delete Team</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">This action is permanent and cannot be undone. All team data, projects, and error logs will be wiped.</div>
+      </div>
+      <button 
+        class="btn-danger whitespace-nowrap" 
+        (click)="onDeleteTeam()" 
+        [disabled]="store.isDeleting()">
+        @if (store.isDeleting()) {
+          <div class="spinner border-2 border-white/30 border-t-white rounded-full"></div>
+          <span>Deleting...</span>
+        } @else {
+          <lucide-angular name="trash" [size]="18" />
+          <span>Delete Team</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

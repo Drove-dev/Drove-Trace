@@ -18,7 +18,6 @@ interface UserData {
   templateUrl: './users-form-modal.html',
   styleUrl: './users-form-modal.css',
 })
-
 export class UsersFormModal implements OnInit {
   protected readonly store = inject(UsersStore);
 
@@ -36,7 +35,8 @@ export class UsersFormModal implements OnInit {
 
   constructor() {
     effect(() => {
-      const isFinished = this.isSaving() && !this.store.isLoading() && this.store.statusMessage() === 'Ready';
+      const isFinished =
+        this.isSaving() && !this.store.isLoading() && this.store.statusMessage() === 'Ready';
 
       if (isFinished) {
         untracked(() => this.close());
@@ -46,6 +46,7 @@ export class UsersFormModal implements OnInit {
 
   ngOnInit(): void {
     this.userModel.set({ ...this.data() });
+    console.log(this.data());
     setTimeout(() => this.visible.set(true), 0);
   }
 

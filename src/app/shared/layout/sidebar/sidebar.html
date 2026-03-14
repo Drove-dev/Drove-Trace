@@ -1,65 +1,90 @@
-<aside class="flex flex-col surface border-r transition-all duration-300 shrink-0"
+<aside class="flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 shrink-0"
        [style.width]="uiStore.sidebarCollapsed() ? '64px' : '256px'">
 
-  <!-- Logo -->
-  <div class="h-16 flex items-center border-b px-1 shrink-0 overflow-hidden" style="border-color: var(--border)">
-
+  <div class="h-16 flex items-center border-b border-slate-200 dark:border-slate-800 px-3 shrink-0 overflow-hidden">
     @if (uiStore.sidebarCollapsed()) {
-      @if (uiStore.theme() === 'dark') {
-        <img src="assets/images/logo/Logo_Dark.svg" alt="logo" width="50" class=" mx-auto" />
-      }
-      @if (uiStore.theme() === 'light' ) {
-        <img src="assets/images/logo/Logo_Light.svg" alt="logo" width="50" class=" mx-auto" />
-      }
-    }
-
-    @if (!uiStore.sidebarCollapsed()) {
-      @if (uiStore.theme() === 'dark') {
-        <img src="assets/images/logo/Logo_Horizontal_Dark_Mode.svg" alt="logo" class="w-30 shrink-0" />
-      }
-      @if (!uiStore.sidebarCollapsed() && uiStore.theme() === 'light') {
-        <img src="assets/images/logo/Logo_Horizontal_Light.svg" alt="logo" class="w-30 shrink-0" />
-      }
+      <img [src]="uiStore.theme() === 'dark' ? 'assets/images/logo/Logo_Dark.svg' : 'assets/images/logo/Logo_Light.svg'"
+           alt="logo" class="h-14 mx-auto shrink-0" />
+    } @else {
+      <div class="flex items-center gap-2 animate-in fade-in duration-500">
+        <img [src]="uiStore.theme() === 'dark' ? 'assets/images/logo/Logo_Horizontal_Dark_Mode.svg' : 'assets/images/logo/Logo_Horizontal_Light.svg'"
+             alt="logo" class="h-15 shrink-0" />
+      </div>
     }
   </div>
 
-  <!-- Nav items -->
-  <nav class="flex-1 py-4 space-y-1 px-2 overflow-hidden">
-    @for (item of navItems; track item.route) {
-      <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
-         style="color: var(--text-secondary)"
-         [routerLink]="item.route"
-         routerLinkActive="!text-indigo-400 !bg-indigo-600/10"
-         [routerLinkActiveOptions]="{ exact: false }">
+  <nav class="flex-1 py-6 space-y-6 px-3 overflow-y-auto overflow-x-hidden custom-scrollbar">
 
-        <lucide-angular [name]="item.icon" [size]="18" class="shrink-0" />
+    <div class="space-y-1">
+      @if (!uiStore.sidebarCollapsed()) {
+        <div class="px-3 mb-2">
+          <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 dark:text-slate-500">Main</span>
+        </div>
+      }
 
-        @if (!uiStore.sidebarCollapsed()) {
-          <span class="text-sm font-medium whitespace-nowrap">{{ item.label }}</span>
+      @for (item of navItems; track item.route) {
+        @if (['Dashboard', 'Error Groups', 'Projects'].includes(item.label)) {
+          <ng-container *ngTemplateOutlet="navLink; context: { $implicit: item }"></ng-container>
         }
+      }
+    </div>
 
-      </a>
-    }
+    <div class="space-y-1">
+      @if (!uiStore.sidebarCollapsed()) {
+        <div class="px-3 mb-2">
+          <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 dark:text-slate-500">Team</span>
+        </div>
+      }
+
+      @for (item of navItems; track item.route) {
+        @if (['Team Members', 'Users', 'SDK Keys', 'Settings'].includes(item.label)) {
+          <ng-container *ngTemplateOutlet="navLink; context: { $implicit: item }"></ng-container>
+        }
+      }
+    </div>
+
   </nav>
 
-  <!-- Footer -->
-  <div class="p-3 border-t flex items-center"
-       style="border-color: var(--border)"
+  <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center"
        [class.justify-center]="uiStore.sidebarCollapsed()"
        [class.justify-between]="!uiStore.sidebarCollapsed()">
 
-    <button (click)="toggleTheme()" class="btn-ghost w-9 h-9 p-0">
-      @if (uiStore.theme() === 'dark') {
-        <lucide-angular name="sun" [size]="18" />
-      } @else {
-        <lucide-angular name="moon" [size]="18" />
-      }
+    <button (click)="toggleTheme()"
+            class="flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800
+                   hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
+      <lucide-angular [name]="uiStore.theme() === 'dark' ? 'sun' : 'moon'" [size]="18" />
     </button>
 
     @if (!uiStore.sidebarCollapsed()) {
-      <span class="text-xs" style="color: var(--text-muted)">v1.0.0</span>
+      <div class="flex flex-col items-end">
+        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">Version</span>
+        <span class="text-[11px] font-black text-slate-900 dark:text-white">1.0.0</span>
+      </div>
+    }
+  </div>
+</aside>
+
+<ng-template #navLink let-item>
+  <a class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 relative
+            text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+     [routerLink]="item.route"
+     routerLinkActive="!text-indigo-600 dark:!text-indigo-400 !bg-indigo-50 dark:!bg-indigo-500/10"
+     [routerLinkActiveOptions]="{ exact: item.route === '/' }">
+
+    <lucide-angular [name]="item.icon" [size]="18" class="shrink-0 transition-transform group-hover:scale-110" />
+
+    @if (!uiStore.sidebarCollapsed()) {
+      <span class="text-sm font-semibold whitespace-nowrap">{{ item.label }}</span>
+
+      @if (item.label === 'Error Groups') {
+        <span class="ml-auto bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">5</span>
+      }
     }
 
-  </div>
-
-</aside>
+    @if (uiStore.sidebarCollapsed()) {
+       <div class="absolute left-14 invisible group-hover:visible bg-slate-900 text-white text-xs py-1 px-2 rounded z-50 whitespace-nowrap shadow-xl">
+         {{ item.label }}
+       </div>
+    }
+  </a>
+</ng-template>

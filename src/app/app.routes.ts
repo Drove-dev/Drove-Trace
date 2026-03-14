@@ -7,7 +7,7 @@ export const routes: Routes = [
   {
     path: 'auth',
     canActivate: [noAuthGuard],
-    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
+    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
     path: '',
@@ -17,22 +17,38 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard/dashboard')
-          .then(m => m.Dashboard)
+        loadComponent: () =>
+          import('./features/dashboard/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
         path: 'users',
-        loadChildren: () => import('./features/users/users.routes').then(m => m.USERS_ROUTES)
+        loadChildren: () => import('./features/users/users.routes').then((m) => m.USERS_ROUTES),
       },
       {
         path: 'reports',
-        loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
+        loadChildren: () =>
+          import('./features/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
+      },
+      {
+        path: 'error-groups',
+        loadChildren: () => import('./features/errors/errors.routes').then((m) => m.ERRORS_ROUTES),
       },
       {
         path: 'settings',
-        loadChildren: () => import('./features/settings/settings.routes').then(m => m.SETTINGS_ROUTES)
-      }
-    ]
+        loadChildren: () =>
+          import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+      },
+      {
+        path: 'team-members',
+        loadChildren: () =>
+          import('./features/team-members/team-members.routes').then((m) => m.TEAM_MEMBERS_ROUTES),
+      },
+      {
+        path: 'sdk-keys',
+        loadChildren: () =>
+          import('./features/sdk-keys/sdk-keys.routes').then((m) => m.SDK_KEYS_ROUTES),
+      },
+    ],
   },
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: 'dashboard' },
 ];

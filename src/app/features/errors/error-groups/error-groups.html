@@ -1,0 +1,121 @@
+<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000">
+
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Error Groups</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Grouped by fingerprint</p>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div class="flex gap-2 mb-5 items-center">
+    <div class="relative flex-1 max-w-md">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+        <lucide-angular name="search" [size]="16"></lucide-angular>
+      </span>
+      <input
+        type="text"
+        class="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-lg text-slate-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+        placeholder="Search errors..."
+        [ngModel]="searchQuery()"
+        (input)="onSearch($event)"
+      />
+    </div>
+
+    <div class="flex gap-2">
+      @for (filter of ['all', 'open', 'investigating', 'resolved']; track filter) {
+        <button
+          (click)="setFilter($any(filter))"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all capitalize"
+          [ngClass]="{
+            'bg-indigo-500 border-indigo-500 text-white shadow-md shadow-indigo-500/20': currentFilter() === filter,
+            'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 text-slate-500 dark:text-slate-400 hover:border-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-400': currentFilter() !== filter
+          }">
+          {{ filter }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Errors Table Panel -->
+  <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl shadow-sm overflow-hidden">
+
+    <!-- Table Header -->
+    <div class="grid grid-cols-[1fr_90px_110px_75px_120px_56px] gap-4 px-5 py-3 border-b border-slate-200 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/30">
+      <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Error</span>
+      <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Occurrences</span>
+      <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Last Seen</span>
+      <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Env</span>
+      <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Status</span>
+      <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Assignee</span>
+    </div>
+
+    <!-- Table Body -->
+    <div class="divide-y divide-slate-100 dark:divide-slate-800/60">
+
+      @for (error of filteredErrors(); track error.title) {
+        <div class="grid grid-cols-[1fr_90px_110px_75px_120px_56px] gap-4 px-5 py-3.5 items-center hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer group">
+
+          <!-- Column 1: Error info -->
+          <div class="min-w-0">
+            <div class="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-0.5">
+              {{ error.title }}
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-500">
+              {{ error.file }}:{{ error.line }}
+            </div>
+          </div>
+
+          <!-- Column 2: Occurrences + Sparkline -->
+          <div>
+            <div class="text-sm font-extrabold text-slate-900 dark:text-white">
+              {{ error.occurrences | number }}
+            </div>
+            <svg width="58" height="20" class="mt-0.5">
+              <polyline [attr.points]="error.sparklinePoints" fill="none" [attr.stroke]="error.sparklineColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <!-- Column 3: Last Seen -->
+          <span class="text-xs text-slate-500 dark:text-slate-400">
+            {{ error.lastSeen }}
+          </span>
+
+          <!-- Column 4: Env Tag -->
+          <div>
+            <span class="inline-block text-[11px] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700/60">
+              {{ error.env }}
+            </span>
+          </div>
+
+          <!-- Column 5: Status Badge -->
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold"
+                  [ngClass]="getBadgeStyles(error.status).container">
+              <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getBadgeStyles(error.status).dot"></span>
+              {{ formatLabel(error.status) }}
+            </span>
+          </div>
+
+          <!-- Column 6: Assignee Avatar -->
+          <div>
+            @if (error.assignee) {
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-white">
+                {{ error.assignee }}
+              </div>
+            } @else {
+              <span class="text-slate-400 dark:text-slate-600 text-xs font-semibold">—</span>
+            }
+          </div>
+
+        </div>
+      } @empty {
+        <div class="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+          No errors match your filter.
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

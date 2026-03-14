@@ -1,63 +1,94 @@
-<div class="table-container overflow-hidden rounded-xl shadow-sm">
+<div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
   @if (dataSource().isLoading()) {
-    <div class="flex items-center gap-2 px-6 py-2 bg-[var(--background-secondary)] text-sm text-[var(--ring)] animate-pulse">
+    <div class="flex items-center gap-2 px-6 py-2 bg-indigo-50/50 dark:bg-indigo-500/5 text-xs font-medium text-indigo-600 dark:text-indigo-400 animate-pulse border-b border-indigo-100/50 dark:border-indigo-500/10">
+      <lucide-angular name="loader-pinwheel" [size]="14" class="animate-spin" />
       <span>{{ dataSource().statusMessage() }}</span>
     </div>
   }
-  <!-- <pre class="text-xs bg-black text-green-400 p-2 overflow-auto max-h-40">
-    DEBUG: {{ dataSource().users() | json }}
-  </pre> -->
+
   <p-table
-    [value]="dataSource().isLoading() ? columns().map(() => ({})) : dataSource().users()"
+    [value]="dataSource().isLoading() ? columns().map(() => ({})) : dataSource().data()"
     [columns]="columns()"
     [unstyled]="true"
     [pt]="tableStyles">
 
     <ng-template #header let-columns>
-      <tr class="table-header">
+      <tr class="bg-slate-50/50 dark:bg-transparent border-b border-slate-100 dark:border-slate-800/60">
         @for (col of columns; track col) {
-          <th class="px-6 py-4 font-semibold">{{ col | titlecase }}</th>
+          <th class="px-6 py-4 text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400 text-left">{{ col | titlecase }}</th>
         }
       </tr>
     </ng-template>
 
     <ng-template #caption>
-      <div class="flex items-center justify-between">
-        <h5 class="m-4">{{ title() | titlecase }}</h5>
-        <input
-          class="border border-[var(--border)] rounded-2xl p-2 m-3"
-          pInputText
-          type="text"
-          (input)="search($event)"
-          placeholder="Search by name..." />
+      <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/30 dark:bg-transparent">
+        <h5 class="text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-500">{{ title() | titlecase }}</h5>
+        <div class="relative">
+          <lucide-angular name="search" [size]="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            class="input pl-9 w-64"
+            pInputText
+            type="text"
+            (input)="search($event)"
+            placeholder="Search by name..." />
+        </div>
       </div>
     </ng-template>
 
     <ng-template #body let-rowData>
-      <tr class="table-row group">
+      <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors border-b border-slate-100 dark:border-slate-800/60 last:border-0">
         @for (col of columns(); track col) {
-          <td class="px-6 py-4">
+          <td class="px-6 py-4 text-sm">
             @if (dataSource().isLoading()) {
-              <p-skeleton width="80%" height="1.2rem" />
+              <p-skeleton width="80%" height="1.2rem" class="opacity-50" />
             }
             @else {
               @if (col === 'actions') {
-                <div class="flex items-center">
-                  <button (click)="edit(rowData)" type="button" class="p-button-text p-button-sm mr-4">
-                    <lucide-angular name="pencil" [size]="20" class="text-[var(--ring)]" />
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button (click)="openForm(rowData)" type="button" class="p-2 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors">
+                    <lucide-angular name="pencil" [size]="16" />
                   </button>
-                  <button (click)="delete(rowData)" type="button" class="p-button-text p-button-sm">
-                    <lucide-angular name="trash" [size]="20" class="text-red-500" />
+                  <button (click)="confirmDelete(rowData)" type="button" class="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                    <lucide-angular name="trash" [size]="16" />
                   </button>
                 </div>
               }
               @else if (col === 'createdAt') {
-                <span class="text-[var(--text-primary)]">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">
                   {{ rowData[col] | date: 'dd/MM/yyyy' }}
                 </span>
               }
+              @else if (col === 'key') {
+                <div class="flex items-center gap-2">
+                  <code class="px-2 py-1 rounded bg-slate-100 dark:bg-white/5 font-mono text-[10px] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    {{ isRevealed(rowData.id) ? rowData[col] : '••••••••••••••••' }}
+                  </code>
+                  <button (click)="toggleKey(rowData.id)" class="p-1.5 hover:bg-slate-100 dark:hover:bg-white/5 rounded-md text-slate-400 transition-colors">
+                    <lucide-angular [name]="isRevealed(rowData.id) ? 'eye-off' : 'eye'" [size]="14" />
+                  </button>
+                </div>
+              }
+              @else if (col === 'status') {
+                <span
+                  class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm"
+                  [class.bg-emerald-500/10]="rowData[col] === 'active'"
+                  [class.text-emerald-600]="rowData[col] === 'active'"
+                  [class.dark:text-emerald-400]="rowData[col] === 'active'"
+                  [class.bg-red-500/10]="rowData[col] !== 'active'"
+                  [class.text-red-600]="rowData[col] !== 'active'"
+                  [class.dark:text-red-400]="rowData[col] !== 'active'"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-emerald-500]="rowData[col] === 'active'" [class.bg-red-500]="rowData[col] !== 'active'"></span>
+                  {{ rowData[col] }}
+                </span>
+              }
+              @else if (col === 'environment') {
+                <span class="px-2 py-0.5 rounded-md bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase text-slate-600 dark:text-slate-400">
+                  {{ rowData[col] }}
+                </span>
+              }
               @else {
-                <span class="text-[var(--text-primary)]" [class.font-bold]="col === 'name'">
+                <span class="text-slate-900 dark:text-slate-200" [class.font-semibold]="col === 'name'">
                   {{ rowData[col] || '---' }}
                 </span>
               }
@@ -69,8 +100,11 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td [attr.colspan]="columns().length" class="text-center py-8 text-gray-500">
-          No data found.
+        <td [attr.colspan]="columns().length" class="text-center py-12">
+          <div class="flex flex-col items-center gap-2">
+            <lucide-angular name="database-zap" [size]="32" class="text-slate-300 dark:text-slate-600" />
+            <p class="text-slate-500 dark:text-slate-400 text-sm italic">No data found.</p>
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -80,15 +114,35 @@
     (onPageChange)="onPageChange($event)"
     [first]="0"
     [rows]="10"
+    style="background-color: transparent;"
     [totalRecords]="dataSource().total()"
     [showFirstLastIcon]="false"
     [showCurrentPageReport]="true"
     currentPageReportTemplate="{first} - {last} of {totalRecords}">
   </p-paginator>
 </div>
-@if (editData()) {
-<app-users-form-modal [data]="editData()" (destroyModal)="editData.set(null)"/>
-}
+
 @if (deleteData()){
   <confirm-modal [data]="deleteData()" (destroyModal)="deleteData.set(null)"/>
 }
+
+<!-- Form Modal -->
+@if (editData()) {
+  @if (editData()?.formType === 'users') {
+    <app-users-form-modal [data]="editData()" (destroyModal)="editData.set(null)"/>
+  }
+
+  @if (editData()?.formType === 'team-members') {
+    <app-team-members-form-modal [data]="editData()" (destroyModal)="editData.set(null)"/>
+  }
+
+  @if (editData()?.formType === 'sdk-keys') {
+    <app-sdk-keys-form-modal [data]="editData()" (destroyModal)="editData.set(null)"/>
+  }
+}
+
+
+
+  <!-- <pre class="text-xs bg-black text-green-400 p-2 overflow-auto max-h-200 mt-4">
+    DEBUG: {{ dataSource().data() | json }}
+  </pre> -->

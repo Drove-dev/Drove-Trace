@@ -1,25 +1,11 @@
-.table-container {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
+/* basic-table.css - Refactored to use Tailwind v4 utilities */
+
+:host {
+  display: block;
 }
 
-.table-header {
-  background-color: var(--bg-surface-2);
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border);
-}
-
-.table-row {
-  border-bottom: 1px solid var(--border);
-  transition: background-color 0.2s;
-}
-
-.table-row:hover {
-  background-color: var(--bg-surface-2);
-}
-
-.p-paginator {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border);
-}
+/* 
+  Legacy classes removed. 
+  Styles are now managed via basic-table.html (Tailwind v4) 
+  and basic-table.ts (PrimeNG PassThrough tokens).
+*/

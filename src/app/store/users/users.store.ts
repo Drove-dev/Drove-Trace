@@ -51,7 +51,7 @@ export class UsersStore {
     return 'Loading users...';
   });
 
-  readonly users = computed(() => this.usersResource.value()?.data ?? []);
+  readonly data = computed(() => this.usersResource.value()?.data ?? []);
   readonly total = computed(() => this.usersResource.value()?.total ?? 0);
   readonly isLoading = this.usersResource.isLoading;
 
