@@ -14,7 +14,8 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', icon: 'layout-dashboard', route: '/dashboard' },
   { label: 'Error Groups', icon: 'triangle-alert', route: '/error-groups' },
   { label: 'Projects', icon: 'box', route: '/projects' },
-  { label: 'Members', icon: 'users', route: '/members' },
+  { label: 'Users', icon: 'users', route: '/users' },
+  { label: 'Team Members', icon: 'users', route: '/team-members' },
   { label: 'SDK Keys', icon: 'key', route: '/sdk-keys' },
   { label: 'Settings', icon: 'settings', route: '/settings' },
 ];

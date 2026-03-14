@@ -27,14 +27,13 @@ import {
   Download,
   Upload,
   RefreshCw,
-  LayoutDashboardIcon,
-  LucideIconData,
   Trash,
   Save,
   Box,
   LoaderPinwheel,
   TrashIcon,
   Key,
+  Copy,
 } from 'lucide-angular';
 
 export const APP_ICONS = {
@@ -72,4 +71,5 @@ export const APP_ICONS = {
   LoaderPinwheel,
   TrashIcon,
   Key,
+  Copy,
 };

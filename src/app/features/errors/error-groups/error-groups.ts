@@ -45,20 +45,20 @@ export class ErrorGroups {
   }
 
   // View Helpers
-  getAssigneeColor(assignee: string | null): string {
-    switch (assignee) {
-      case 'AM':
-        return 'bg-indigo-500';
-      case 'CM':
-        return 'bg-cyan-600';
-      case 'JL':
-        return 'bg-emerald-600';
-      case 'SR':
-        return 'bg-amber-600';
-      default:
-        return 'bg-slate-300 dark:bg-slate-700';
-    }
-  }
+  // getAssigneeColor(assignee: string | null): string {
+  //   switch (assignee) {
+  //     case 'AM':
+  //       return 'bg-indigo-500';
+  //     case 'CM':
+  //       return 'bg-cyan-600';
+  //     case 'JL':
+  //       return 'bg-emerald-600';
+  //     case 'SR':
+  //       return 'bg-amber-600';
+  //     default:
+  //       return 'bg-slate-300 dark:bg-slate-700';
+  //   }
+  // }
 
   getBadgeStyles(status: ErrorStatus) {
     switch (status) {

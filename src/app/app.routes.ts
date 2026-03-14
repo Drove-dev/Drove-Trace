@@ -38,6 +38,16 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
       },
+      {
+        path: 'team-members',
+        loadChildren: () =>
+          import('./features/team-members/team-members.routes').then((m) => m.TEAM_MEMBERS_ROUTES),
+      },
+      {
+        path: 'sdk-keys',
+        loadChildren: () =>
+          import('./features/sdk-keys/sdk-keys.routes').then((m) => m.SDK_KEYS_ROUTES),
+      },
     ],
   },
   { path: '**', redirectTo: 'dashboard' },

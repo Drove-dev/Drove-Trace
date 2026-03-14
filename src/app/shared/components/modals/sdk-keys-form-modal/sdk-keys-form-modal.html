@@ -1,0 +1,108 @@
+<p-dialog
+  [header]="data()?.id ? 'Edit SDK Key' : 'Generate New SDK Key'"
+  [(visible)]="visible"
+  (onHide)="close()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  maskStyleClass="backdrop-blur-sm"
+  styleClass="border-none overflow-hidden rounded-xl shadow-2xl"
+  [style]="{ width: '32rem', background: 'var(--bg-surface)' }"
+  [breakpoints]="{ '575px': '90vw' }"
+>
+  <div class="flex flex-col gap-6 py-6">
+    <div class="form-group mb-0!">
+      <label class="label">Key Name</label>
+      <input
+        type="text"
+        [formField]="sdkKeyForm.name"
+        placeholder="e.g. Production Mobile App"
+        class="input"
+        [class.input-error]="sdkKeyForm.name().touched() && sdkKeyForm.name().invalid()"
+        [class.opacity-50]="store.isLoading()"
+      />
+      @if (sdkKeyForm.name().touched() && sdkKeyForm.name().invalid()) {
+        <span class="field-error font-medium italic">
+          {{ sdkKeyForm.name().errors()[0]?.message }}
+        </span>
+      }
+    </div>
+
+    <div class="form-group mb-0!">
+      <label class="label">Project</label>
+      <input
+        type="text"
+        [formField]="sdkKeyForm.project"
+        placeholder="e.g. My Awesome Project"
+        class="input"
+        [class.input-error]="sdkKeyForm.project().touched() && sdkKeyForm.project().invalid()"
+        [class.opacity-50]="store.isLoading()"
+      />
+      @if (sdkKeyForm.project().touched() && sdkKeyForm.project().invalid()) {
+        <span class="field-error font-medium italic">
+          {{ sdkKeyForm.project().errors()[0]?.message }}
+        </span>
+      }
+    </div>
+
+    <div class="form-group mb-0!">
+      <label class="label">Environment</label>
+      <div class="flex flex-wrap gap-3 mt-2">
+        @for (env of environments; track env.value) {
+          <label 
+            class="flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-all duration-200"
+            [class.bg-[var(--primary)]]="sdkKeyModel().environment === env.value"
+            [class.text-white]="sdkKeyModel().environment === env.value"
+            [class.border-[var(--primary)]]="sdkKeyModel().environment === env.value"
+            [class.bg-surface-2]="sdkKeyModel().environment !== env.value"
+            [class.border-[var(--border)]]="sdkKeyModel().environment !== env.value"
+            [class.opacity-50]="store.isLoading()"
+          >
+            <input 
+              type="radio" 
+              [value]="env.value" 
+              [formField]="sdkKeyForm.environment"
+              class="hidden"
+            />
+            <span class="text-sm font-medium">{{ env.label }}</span>
+          </label>
+        }
+      </div>
+    </div>
+
+    @if (store.isLoading() && isSaving()) {
+      <div class="flex items-center gap-2 text-sm text-(--ring) animate-pulse">
+        <lucide-angular name="loader-pinwheel" [size]="16" class="animate-spin" />
+        <span class="font-medium">{{ store.statusMessage() }}</span>
+      </div>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="flex items-center justify-end gap-3 p-4 border-t border-(--border)">
+      <button
+        type="button"
+        (click)="close()"
+        [disabled]="store.isLoading()"
+        class="btn-secondary py-2!"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        (click)="save()"
+        [disabled]="store.isLoading() || sdkKeyForm().invalid()"
+        class="btn-primary min-w-40"
+      >
+        @if (store.isLoading() && isSaving()) {
+          <div class="spinner border-2 border-white/30 border-t-white rounded-full"></div>
+          <span>Generating...</span>
+        } @else {
+          <lucide-angular name="plus" [size]="18" />
+          <span>Generate Key</span>
+        }
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

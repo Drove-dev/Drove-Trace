@@ -37,7 +37,7 @@
       }
 
       @for (item of navItems; track item.route) {
-        @if (['Members', 'SDK Keys', 'Settings'].includes(item.label)) {
+        @if (['Team Members', 'Users', 'SDK Keys', 'Settings'].includes(item.label)) {
           <ng-container *ngTemplateOutlet="navLink; context: { $implicit: item }"></ng-container>
         }
       }

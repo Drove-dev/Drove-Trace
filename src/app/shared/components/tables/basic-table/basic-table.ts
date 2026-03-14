@@ -1,17 +1,23 @@
-import { Component, effect, inject, input, OnInit, signal } from '@angular/core';
+import { Component, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { SkeletonModule } from 'primeng/skeleton';
-import { UsersStore } from '../../../../store/stores-index';
 import { LucideAngularModule } from 'lucide-angular';
 import { PaginatorModule } from 'primeng/paginator';
 import { StoreType } from '../../../../core/types/stores-types';
-import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { UsersFormModal } from '../../modals/users-form-modal/users-form-modal';
+import { TeamMembersFormModal } from '../../modals/team-members-form-modal/team-members-form-modal';
+import { SdkKeysFormModal } from '../../modals/sdk-keys-form-modal/sdk-keys-form-modal';
 import { User } from '../../../../core/models/user.model';
 import { ConfirmModal } from '../../modals/confirm-modal/confirm-modal';
+import { TeamMembers } from '../../../../features/team-members/team-members';
+
+export interface CustomFormData {
+  data: any;
+  formType: StoreType;
+}
 
 @Component({
   selector: 'basic-table',
@@ -22,56 +28,71 @@ import { ConfirmModal } from '../../modals/confirm-modal/confirm-modal';
     SkeletonModule,
     LucideAngularModule,
     PaginatorModule,
-    SkeletonModule,
     UsersFormModal,
+    TeamMembersFormModal,
+    SdkKeysFormModal,
     DialogModule,
-    ConfirmModal
+    ConfirmModal,
   ],
   templateUrl: './basic-table.html',
   styleUrl: './basic-table.css',
 })
 export class BasicTable implements OnInit {
-  private usersStore = inject(UsersStore);
-
-  // Inputs
-  // Nota: Si el dataSource ya es el UsersStore, puedes usarlo directamente
-  dataSource = input.required<UsersStore>();
+  dataSource = input.required<User | TeamMembers | any>();
   storeType = input.required<StoreType>();
-  columns = input.required<string[]>(); // Corregido typo 'colunms'
+  columns = input.required<string[]>();
   tableStyles = {
-    root: 'w-full overflow-x-auto',
+    root: 'w-full',
     table: 'w-full border-collapse text-left text-sm',
-    thead: 'table-header',
-    tbody: 'divide-y divide-[var(--border)]',
+    thead: '',
+    tbody: '',
   };
-
-  // Form Modal & UI State
-  editData = signal<User | null>(null); // Ahora guarda el Usuario, no el Store
-  deleteData = signal<User | null>(null);
+  editData = signal<User | TeamMembers | null | any>(null);
+  deleteData = signal<User | TeamMembers | null | any>(null);
   title = signal<string>('');
+  revealedKeys = signal<Record<string, boolean>>({});
+
+  toggleKey(id: string) {
+    this.revealedKeys.update((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  }
+
+  isRevealed(id: string): boolean {
+    return !!this.revealedKeys()[id];
+  }
 
   ngOnInit(): void {
     this.title.set(this.storeType());
   }
 
-  // Evento del Paginador (PrimeNG u otro)
   onPageChange(event: any) {
-    // Calculamos la página (PrimeNG usa 'first' como índice, lo pasamos a número de página)
     const pageNumber = event.first / event.rows + 1;
-    this.dataSource().goToPage(pageNumber);
+    if (this.storeType() == 'users') {
+      this.dataSource().goToPage(pageNumber);
+    } else if (this.storeType() == 'sdk-keys') {
+      this.dataSource().goToPage(pageNumber);
+    }
   }
 
   search(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource().searchByName(filterValue);
-  }
-
-  edit(user: User) {
-    this.editData.set(user);
-  }
-
-  delete(user: User) {
-    this.deleteData.set(user);
+    const ds = this.dataSource();
+    if (ds.searchByName) {
+      ds.searchByName(filterValue);
+    } else if (ds.searchByTeam) {
+      ds.searchByTeam(filterValue);
     }
-}
+  }
 
+  openForm(data: CustomFormData) {
+    data.formType = this.storeType();
+    this.editData.set(data);
+  }
+
+  confirmDelete(data: CustomFormData) {
+    data.formType = this.storeType();
+    this.deleteData.set(data);
+  }
+}
