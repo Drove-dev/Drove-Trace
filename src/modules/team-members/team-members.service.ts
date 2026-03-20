@@ -103,8 +103,6 @@ export class TeamMembersService {
       excludeExtraneousValues: true,
     });
 
-    this.logger.log(mappedData);
-
     return {
       data: mappedData,
       total,

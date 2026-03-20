@@ -1,9 +1,13 @@
-import { Controller, Post, Body, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, HttpCode, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { IsPublic } from './decorators/is-public/is-public.decorator';
+import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
+import { GetUser } from './decorators/get-user.decorator';
+import type { UserWithRole } from './interfaces';
+import { MeResponseDto } from './dto/me-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,5 +24,12 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   register(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
+  }
+
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  getMe(@GetUser() user: UserWithRole): Promise<MeResponseDto> {
+    return this.authService.getMe(user.id);
   }
 }
