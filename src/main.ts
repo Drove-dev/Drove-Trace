@@ -1,7 +1,8 @@
-import { NestFactory } from '@nestjs/core';
+import { Logger, ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,6 +14,9 @@ async function bootstrap() {
 
   // Set prefix
   app.setGlobalPrefix('api');
+
+  // Set Global Filters
+  app.useGlobalFilters(new AllExceptionsFilter(new Logger('ExceptionFilter')));
 
   // Set Global pipes
   app.useGlobalPipes(
@@ -45,6 +49,9 @@ async function bootstrap() {
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
+
+  // Set Global Interceptors
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // App listener
   await app.listen(process.env.PORT ?? 3000);

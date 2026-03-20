@@ -11,6 +11,10 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from 'src/common/dtos/pagination';
+import { paginate } from '../../common/helpers/paginate.helper';
+import { PaginatedResponseDto } from '../../common/dtos/paginated-response.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 export interface UsersResponse {
   data: User[];
@@ -55,66 +59,66 @@ export class UsersService {
     }
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<UsersResponse> {
-    const { limit = 15, page = 1 } = paginationDto;
-    const offset = (page - 1) * limit;
-
-    const [users, total] = await this.usersRepository.findAndCount({
-      select: ['id', 'email', 'name', 'createdAt'],
-      take: limit,
-      skip: offset,
-      order: { createdAt: 'DESC' },
-    });
-
-    return {
-      data: users,
-      total,
-      // lastPage: Math.ceil(total / limit),
-    };
-  }
-
-  async findOne(search: string): Promise<User> {
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<UserResponseDto>> {
+    const { search } = paginationDto;
     const whereOptions: any = {};
 
     if (search) {
       whereOptions.name = ILike(`%${search}%`);
     }
 
-    const users = await this.usersRepository.find({
-      where: whereOptions,
-      select: ['id', 'email', 'name', 'createdAt'],
-    });
-
-    if (!users) {
-      throw new NotFoundException(`User with name ${search} not found`);
-    }
-
-    return users as unknown as User;
+    return await paginate(
+      this.usersRepository,
+      paginationDto,
+      {
+        where: whereOptions,
+        order: { createdAt: 'DESC' },
+      },
+      UserResponseDto,
+    );
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
+  private async findEntityById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
 
-    // If email is being updated, check for duplicates
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingUser = await this.usersRepository.findOne({
-        where: { email: updateUserDto.email },
-      });
-
-      if (existingUser) {
-        throw new ConflictException('Email already in use');
-      }
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    // const updatedUser = Object.assign(user, updateUserDto);
-    const updatedUser = this.usersRepository.merge(user, updateUserDto);
-    this.usersRepository.update(id, updatedUser);
-    await this.usersRepository.save(updatedUser);
-    return updatedUser;
+    return user;
+  }
+
+  async findOne(id: string): Promise<UserResponseDto> {
+    const user = await this.findEntityById(id);
+
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.findEntityById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    user.name = updateUserDto.name;
+
+    const updatedUser = await this.usersRepository.save(user);
+
+    return plainToInstance(UserResponseDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    const user = await this.findOne(id);
+    const user = await this.findEntityById(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }

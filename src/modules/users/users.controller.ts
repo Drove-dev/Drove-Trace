@@ -10,16 +10,17 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  SerializeOptions,
 } from '@nestjs/common';
+import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../auth/decorators/roles/roles.decorator';
 import { ValidRoles } from '../auth/interfaces/valid-roles';
-import { IsPublic } from '../auth/decorators/is-public/is-public.decorator';
+// import { IsPublic } from '../auth/decorators/is-public/is-public.decorator';
 import { PaginationDto } from 'src/common/dtos/pagination';
 
 @Controller('users')
@@ -29,11 +30,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // @IsPublic()
-  // @Post('register')
-  // @HttpCode(HttpStatus.CREATED)
-  // create(@Body() createUserDto: CreateUserDto) {
-  //   return this.usersService.create(createUserDto);
-  // }
+  @Roles(ValidRoles.admin)
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
 
   @Roles(ValidRoles.admin)
   @Get()
@@ -43,10 +45,10 @@ export class UsersController {
   }
 
   @Roles(ValidRoles.admin)
-  @Get(':name')
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
-  findOne(@Param('name') name: string) {
-    return this.usersService.findOne(name);
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
   }
 
   @Roles(ValidRoles.admin)
