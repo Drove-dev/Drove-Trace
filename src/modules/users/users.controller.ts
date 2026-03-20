@@ -11,6 +11,8 @@ import {
   UseGuards,
   Query,
   SerializeOptions,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
@@ -26,6 +28,7 @@ import { PaginationDto } from 'src/common/dtos/pagination';
 @Controller('users')
 @ApiBearerAuth('jwt')
 @UseGuards(RolesGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
