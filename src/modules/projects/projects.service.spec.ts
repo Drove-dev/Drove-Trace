@@ -42,13 +42,12 @@ describe('ProjectsService', () => {
   });
 
   // ── create ────────────────────────────────────────────────
-  // CreateProjectDto: name (required), teamId (required, UUID), environment (required, enum: dev|staging|production), sdkKey (required, 5-255 chars)
+  // CreateProjectDto: name (required), teamId (required, UUID), environment (required, enum: dev|staging|production)
   describe('create()', () => {
     const createDto = {
       name: 'My App',
       teamId: 'team-uuid',
       environment: 'production' as const,
-      sdkKey: 'sdk-key-abc',
     };
     const team = { id: 'team-uuid', name: 'Dev Team' };
 
@@ -109,14 +108,13 @@ describe('ProjectsService', () => {
   });
 
   // ── update ────────────────────────────────────────────────
-  // UpdateProjectDto: PartialType → name?, teamId?, environment?, sdkKey?
+  // UpdateProjectDto: PartialType → name?, teamId?, environment?
   describe('update()', () => {
     const existing = {
       id: 'proj-1',
       name: 'Old',
       team: { id: 't-1' },
       environment: 'dev',
-      sdkKey: 'old-key',
     };
 
     it('should update name and environment without touching team', async () => {

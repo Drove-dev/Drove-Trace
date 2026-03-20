@@ -1,16 +1,24 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
+
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { Project } from './entities/project.entity';
 import { Team } from '../teams/entities/team.entity';
+import { PaginationDto } from '../../common/dtos/pagination';
+import { ValidRoles } from '../auth/interfaces';
+import type { UserWithRole } from '../auth/interfaces';
+import { paginate } from '../../common/helpers/paginate.helper';
+import { ProjectResponseDto } from './dto/project-response.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -24,73 +32,72 @@ export class ProjectsService {
   ) {}
 
   async create(createProjectDto: CreateProjectDto) {
-    const { name, teamId, environment, sdkKey } = createProjectDto;
+    const { name, teamId, environment } = createProjectDto;
 
     const team = await this.teamRepository.findOne({ where: { id: teamId } });
     if (!team) {
       throw new NotFoundException(`Team with ID ${teamId} not found`);
     }
 
-    try {
-      const project = this.projectRepository.create({
-        name,
-        team,
-        environment,
-        sdkKey,
-      });
+    const project = this.projectRepository.create({
+      name,
+      team,
+      environment,
+    });
 
-      const saved = await this.projectRepository.save(project);
-      return this.findOne(saved.id);
-    } catch (error) {
-      this.handleDBExceptions(error);
-    }
-  }
+    const saved = await this.projectRepository.save(project);
+    const reloaded = await this.findEntityById(saved.id);
 
-  async findAll() {
-    return this.projectRepository.find({
-      relations: ['team'],
-      select: {
-        id: true,
-        name: true,
-        environment: true,
-        sdkKey: true,
-        createdAt: true,
-        updatedAt: true,
-        team: {
-          id: true,
-          name: true,
-        },
-      },
-      order: { createdAt: 'DESC' },
+    return plainToInstance(ProjectResponseDto, instanceToPlain(reloaded), {
+      excludeExtraneousValues: true,
     });
   }
 
-  async findOne(id: string) {
-    const project = await this.projectRepository.findOne({
-      where: { id },
-      relations: ['team'],
-      select: {
-        id: true,
-        name: true,
-        environment: true,
-        sdkKey: true,
-        createdAt: true,
-        updatedAt: true,
-        team: {
-          id: true,
-          name: true,
-        },
-      },
-    });
+  async findAll(query: PaginationDto, user: UserWithRole) {
+    const { search } = query;
+    const teamIds = user.role.map((r) => r.teamId);
+    const isAdmin = user.role.some((r) => r.role === ValidRoles.admin);
 
-    if (!project) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
+    const where: any = {};
+
+    // Filter by team if not admin
+    if (!isAdmin) {
+      where.team = { id: In(teamIds) };
     }
 
-    return project;
+    // Apply search filter if provided
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
+    return paginate(
+      this.projectRepository,
+      query,
+      {
+        where,
+        relations: ['team'],
+        order: { createdAt: 'DESC' },
+      },
+      ProjectResponseDto,
+    );
   }
 
-  private async findOneEntity(id: string): Promise<Project> {
+  async findOne(id: string, user: UserWithRole): Promise<ProjectResponseDto> {
+    const entity = await this.findEntityById(id);
+
+    const isAdmin = user.role.some((r) => r.role === ValidRoles.admin);
+    const teamIds = user.role.map((r) => r.teamId);
+
+    if (!isAdmin && !teamIds.includes(entity.team.id)) {
+      throw new ForbiddenException('You do not have access to this project');
+    }
+
+    return plainToInstance(ProjectResponseDto, instanceToPlain(entity), {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  private async findEntityById(id: string): Promise<Project> {
     const project = await this.projectRepository.findOne({
       where: { id },
       relations: ['team'],
@@ -104,53 +111,37 @@ export class ProjectsService {
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto) {
-    const project = await this.findOneEntity(id);
-    const { name, teamId, environment, sdkKey } = updateProjectDto;
+    const project = await this.findEntityById(id);
+    const { name, teamId, environment } = updateProjectDto;
 
-    try {
-      if (name !== undefined) {
-        project.name = name;
-      }
-
-      if (teamId !== undefined) {
-        const team = await this.teamRepository.findOne({ where: { id: teamId } });
-        if (!team) {
-          throw new NotFoundException(`Team with ID ${teamId} not found`);
-        }
-        project.team = team;
-      }
-
-      if (environment !== undefined) {
-        project.environment = environment;
-      }
-
-      if (sdkKey !== undefined) {
-        project.sdkKey = sdkKey;
-      }
-
-      await this.projectRepository.save(project);
-      return this.findOne(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      this.handleDBExceptions(error);
+    if (name !== undefined) {
+      project.name = name;
     }
+
+    if (teamId !== undefined) {
+      const team = await this.teamRepository.findOne({ where: { id: teamId } });
+      if (!team) {
+        throw new NotFoundException(`Team with ID ${teamId} not found`);
+      }
+      project.team = team;
+    }
+
+    if (environment !== undefined) {
+      project.environment = environment;
+    }
+
+    await this.projectRepository.save(project);
+    const reloaded = await this.findEntityById(id);
+
+    return plainToInstance(ProjectResponseDto, instanceToPlain(reloaded), {
+      excludeExtraneousValues: true,
+    });
   }
 
   async remove(id: string) {
-    const project = await this.findOneEntity(id);
+    const project = await this.findEntityById(id);
     await this.projectRepository.remove(project);
     return { message: `Project ${id} has been deleted` };
   }
 
-  private handleDBExceptions(error: any): never {
-    if (error?.code === '23505') {
-      throw new BadRequestException(error.detail ?? 'Duplicate or constraint violation');
-    }
-    if (error?.code === '23503') {
-      throw new BadRequestException('Referenced entity not found');
-    }
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
-  }
 }
-

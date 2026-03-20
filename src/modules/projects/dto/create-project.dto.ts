@@ -21,11 +21,5 @@ export class CreateProjectDto {
   })
   environment: 'dev' | 'staging' | 'production';
 
-  @IsString()
-  @IsNotEmpty({ message: 'SDK Key is required' })
-  @MinLength(5, { message: 'SDK Key must be at least 5 characters long' })
-  @MaxLength(255, { message: 'SDK Key must not exceed 255 characters' })
-  @Transform(({ value }) => value?.trim())
-  sdkKey: string;
 }
 

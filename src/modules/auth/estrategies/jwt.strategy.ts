@@ -27,10 +27,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: { id: string }): Promise<UserWithRole> {
     const { id } = payload;
 
-    // const user = await this.userRepository.findOneBy({ id });
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['team_members', 'team_members.role'],
+      relations: ['team_members', 'team_members.role', 'team_members.team'],
     });
 
     if (!user) throw new UnauthorizedException('Token not valid');
@@ -38,10 +37,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: user.id,
       email: user.email,
-      role: user.team_members.map((team_member) => {
+      role: user.team_members.map((tm) => {
         return {
-          id: team_member.id,
-          role: team_member.role.name,
+          id: tm.id,
+          role: tm.role.name,
+          teamId: tm.team.id,
         };
       }),
     };

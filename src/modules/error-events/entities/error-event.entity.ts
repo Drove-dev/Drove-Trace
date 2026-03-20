@@ -9,12 +9,14 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { SdkKey } from '../../sdk-keys/entities/sdk-key.entity';
+
 /**
  * Entity that stores each error event captured by the SDK.
  * One row = one occurrence of an error happening in a client app.
  */
 @Entity({ name: 'error_events' })
 @Index(['sdkKey'])
+@Index(['sdkKeyId'])
 @Index(['environment'])
 @Index(['createdAt'])
 export class ErrorEvent {
@@ -26,19 +28,24 @@ export class ErrorEvent {
   id: string;
 
   /**
-   * Public key of the SDK that sent the error.
-   * Used to identify which application/project generated the event.
+   * Public key of the SDK that sent the error (string value).
+   * Conserved for traceability and logs.
    */
-
   @Column({ type: 'varchar', length: 255 })
   sdkKey: string;
 
-  @ManyToOne(() => SdkKey, (SdkKey) => SdkKey.key, { onDelete: 'CASCADE' })
-  @JoinColumn({
-    name: 'sdkKey',
-    referencedColumnName: 'key',
-  })
-  sdkKeyRelation: SdkKey;
+  /**
+   * FK to the SDK Key entity (UUID).
+   */
+  @Column({ type: 'uuid' })
+  sdkKeyId: string;
+
+  /**
+   * Relation to the SDK Key record.
+   */
+  @ManyToOne(() => SdkKey, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'sdkKeyId' })
+  sdkKeyEntity: SdkKey;
 
   /**
    * Hash used to group similar errors.

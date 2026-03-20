@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -9,7 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
-
+import { plainToInstance } from 'class-transformer';
+import { MeResponseDto } from './dto/me-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -62,7 +63,6 @@ export class AuthService {
     return token;
   }
 
-
   async checkAuthStatus( user: User ){
     return {
       ...user,
@@ -70,5 +70,35 @@ export class AuthService {
     };
   }
 
-}
+  async getMe(userId: string): Promise<MeResponseDto> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: [
+        'team_members',
+        'team_members.team',
+        'team_members.role',
+      ],
+    });
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const result = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      teams: user.team_members.map(tm => ({
+        teamId: tm.team.id,
+        teamName: tm.team.name,
+        role: tm.role.name,
+      })),
+    };
+
+    return plainToInstance(MeResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+}

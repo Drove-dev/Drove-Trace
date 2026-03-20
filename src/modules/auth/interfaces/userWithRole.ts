@@ -4,5 +4,6 @@ export interface UserWithRole {
   role: {
     id: string;
     role: string;
+    teamId: string;
   }[];
 }
