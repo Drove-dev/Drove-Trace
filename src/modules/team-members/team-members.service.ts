@@ -10,10 +10,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTeamMemberDto } from './dto/create-team-member.dto';
 import { UpdateTeamMemberDto } from './dto/update-team-member.dto';
+import { TeamMemberResponseDto } from './dto/team-member-response.dto';
 import { TeamMember } from './entities/team-member.entity';
 import { Team } from '../teams/entities/team.entity';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
+import { PaginationDto } from '../../common/dtos/pagination';
+import { PaginatedResponseDto } from '../../common/dtos/paginated-response.dto';
+import { plainToInstance, instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class TeamMembersService {
@@ -50,7 +54,6 @@ export class TeamMembersService {
       where: {
         team: { id: teamId },
         user: { id: userId },
-        role: { id: roleId },
       },
       relations: ['team', 'user', 'role'],
     });
@@ -73,120 +76,100 @@ export class TeamMembersService {
     }
   }
 
-  async findAll() {
-    return this.teamMemberRepository.find({
-      relations: ['team', 'user', 'role'],
-      select: {
-        id: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        team: {
-          id: true,
-          name: true,
-        },
-        user: {
-          id: true,
-          email: true,
-          name: true,
-        },
-      },
-      order: { createdAt: 'DESC' },
+  async findAll(
+    queryDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<TeamMemberResponseDto>> {
+    const { page = 1, limit = 15, search } = queryDto;
+
+    const queryBuilder = this.teamMemberRepository
+      .createQueryBuilder('teamMember')
+      .addSelect('team.id', 'id')
+      .leftJoinAndSelect('teamMember.team', 'team')
+      .leftJoinAndSelect('team.owner', 'owner')
+      .leftJoinAndSelect('teamMember.user', 'user')
+      .leftJoinAndSelect('teamMember.role', 'role')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .orderBy('teamMember.createdAt', 'DESC');
+
+    if (search) {
+      queryBuilder.where('user.name ILIKE :search', { search: `%${search}%` });
+    }
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    const plainData = data.map((item) => instanceToPlain(item));
+    const mappedData = plainToInstance(TeamMemberResponseDto, plainData, {
+      excludeExtraneousValues: true,
+    });
+
+    this.logger.log(mappedData);
+
+    return {
+      data: mappedData,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findOne(id: string): Promise<TeamMemberResponseDto> {
+    const member = await this.findEntityById(id);
+
+    return plainToInstance(TeamMemberResponseDto, instanceToPlain(member), {
+      excludeExtraneousValues: true,
     });
   }
 
-  async findOne(id: string) {
+  private async findEntityById(id: string): Promise<TeamMember> {
     const member = await this.teamMemberRepository.findOne({
       where: { id },
-      relations: ['team', 'user', 'role'],
-      select: {
-        id: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        team: {
-          id: true,
-          name: true,
-        },
-        user: {
-          id: true,
-          email: true,
-          name: true,
-        },
-      },
+      relations: ['team', 'team.owner', 'user', 'role'],
     });
 
     if (!member) {
-      throw new NotFoundException(`Team member with ID ${id} not found`);
+      throw new NotFoundException(`TeamMember with id ${id} not found`);
     }
 
     return member;
   }
 
-  private async findOneEntity(id: string): Promise<TeamMember> {
-    const member = await this.teamMemberRepository.findOne({
-      where: { id },
-      relations: ['team', 'user'],
+  async update(
+    id: string,
+    updateTeamMemberDto: UpdateTeamMemberDto,
+  ): Promise<TeamMemberResponseDto> {
+    const member = await this.findEntityById(id);
+    const { userId, roleId } = updateTeamMemberDto;
+
+    // Check user
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    // Check role
+    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    if (!role) {
+      throw new NotFoundException(`Role with id ${roleId} not found`);
+    }
+
+    member.user = user;
+    member.role = role;
+
+    await this.teamMemberRepository.save(member);
+
+    // Reload to ensure all relations are fresh
+    const reloaded = await this.findEntityById(id);
+
+    return plainToInstance(TeamMemberResponseDto, instanceToPlain(reloaded), {
+      excludeExtraneousValues: true,
     });
-
-    if (!member) {
-      throw new NotFoundException(`Team member with ID ${id} not found`);
-    }
-
-    return member;
   }
 
-  async update(id: string, updateTeamMemberDto: UpdateTeamMemberDto) {
-    const member = await this.findOneEntity(id);
-    const { teamId, userId, roleId } = updateTeamMemberDto;
-
-    try {
-      if (teamId !== undefined) {
-        const team = await this.teamRepository.findOne({
-          where: { id: teamId },
-        });
-        if (!team) {
-          throw new NotFoundException(`Team with ID ${teamId} not found`);
-        }
-        member.team = team;
-      }
-
-      if (userId !== undefined) {
-        const user = await this.userRepository.findOne({
-          where: { id: userId },
-        });
-        if (!user) {
-          throw new NotFoundException(`User with ID ${userId} not found`);
-        }
-        member.user = user;
-      }
-
-      if (roleId !== undefined) {
-        const role = await this.roleRepository.findOne({
-          where: { id: roleId },
-        });
-        if (!role) {
-          throw new NotFoundException(`User with ID ${userId} not found`);
-        }
-        member.role = role;
-      }
-
-      // if (roleId !== undefined) {
-      //   member.role = roleId;
-      // }
-
-      await this.teamMemberRepository.save(member);
-      return this.findOne(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      this.handleDBExceptions(error);
-    }
-  }
-
-  async remove(id: string) {
-    const member = await this.findOneEntity(id);
+  async remove(id: string): Promise<void> {
+    const member = await this.findEntityById(id);
     await this.teamMemberRepository.remove(member);
-    return { message: `Team member ${id} has been deleted` };
   }
 
   private handleDBExceptions(error: any): never {
