@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MinLength, MaxLength, IsNumber, IsOptional, IsObject, } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength, IsNumber, IsOptional, IsObject, IsUrl } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class CreateErrorEventDto {
@@ -23,6 +23,7 @@ export class CreateErrorEventDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Stack trace is required' })
+  @MaxLength(10000, { message: 'Stack trace must not exceed 10000 characters' })
   @Transform(({ value }) => value?.trim())
   stackTrace: string;
 
@@ -51,9 +52,9 @@ export class CreateErrorEventDto {
   @Transform(({ value }) => value?.toLowerCase().trim())
   environment: string;
 
-  @IsString()
   @IsOptional()
-  @MaxLength(255, { message: 'URL must not exceed 255 characters' })
+  @IsUrl({ require_protocol: true })
+  @MaxLength(2048)
   @Transform(({ value }) => value?.trim())
   url?: string;
 

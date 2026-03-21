@@ -123,9 +123,16 @@ export class ErrorEventsService {
       metadata,
     } = createErrorEventDto;
 
-    // Resolve SDK Key entity to get both UUID and Project info
-    const existSdk = await this.sdkService.findOneByKey(sdkKey);
-    if (!existSdk) throw new BadRequestException('Invalid SDK key');
+    // Resolve SDK Key entity to efficiently get Project info without redundant deep validation
+    const existSdk = await this.sdkKeyRepository.findOne({
+      where: { key: sdkKey },
+      relations: ['project'],
+      select: { id: true, project: { id: true } }
+    });
+
+    if (!existSdk) {
+      throw new BadRequestException('Invalid SDK key');
+    }
 
     // Create error group associated with the project linked to the SDK Key
     await this.findOrCreateErrorGroup(fingerprint, existSdk.project.id);
