@@ -1,7 +1,6 @@
 import { Controller, Post, Body, HttpStatus, HttpCode, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { IsPublic } from './decorators/is-public/is-public.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
@@ -19,12 +18,6 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  @IsPublic()
-  @Post('register')
-  @HttpCode(HttpStatus.CREATED)
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.create(createUserDto);
-  }
 
   @Get('me')
   @HttpCode(HttpStatus.OK)

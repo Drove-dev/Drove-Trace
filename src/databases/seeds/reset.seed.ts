@@ -6,6 +6,7 @@ import { Project } from '../../modules/projects/entities/project.entity';
 import { SdkKey } from '../../modules/sdk-keys/entities/sdk-key.entity';
 import { ErrorEvent } from '../../modules/error-events/entities/error-event.entity';
 import { ErrorGroup } from '../../modules/error-groups/entities/error-group.entity';
+import { Role } from '../../modules/roles/entities/role.entity';
 
 /** Delete all rows using DELETE (avoids TRUNCATE FK issues). Order: children first. */
 async function deleteAll(repo: { createQueryBuilder: (alias?: string) => any }) {
@@ -22,6 +23,7 @@ export const resetSeed = async (dataSource: DataSource) => {
   const teamMemberRepo = dataSource.getRepository(TeamMember);
   const teamRepo = dataSource.getRepository(Team);
   const userRepo = dataSource.getRepository(User);
+  const roleRepo = dataSource.getRepository(Role);
 
   // Delete in FK-safe order (children before parents)
   await deleteAll(errorEventRepo);
@@ -31,6 +33,7 @@ export const resetSeed = async (dataSource: DataSource) => {
   await deleteAll(teamMemberRepo);
   await deleteAll(teamRepo);
   await deleteAll(userRepo);
+  await deleteAll(roleRepo);
 
   console.log('✅ Seed data cleaned');
 };
