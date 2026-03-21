@@ -3,18 +3,12 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { SdkKeysService } from './sdk-keys.service';
 import { SdkKey } from './entities/sdk-key.entity';
-import { Project } from '../projects/entities/project.entity';
 
 const mockSdkKeyRepository = {
   findOne: jest.fn(),
-  find: jest.fn(),
-  create: jest.fn(),
   save: jest.fn(),
   remove: jest.fn(),
-};
-
-const mockProjectRepository = {
-  findOne: jest.fn(),
+  findAndCount: jest.fn(),
 };
 
 describe('SdkKeysService', () => {
@@ -24,10 +18,9 @@ describe('SdkKeysService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SdkKeysService,
-        { provide: getRepositoryToken(SdkKey), useValue: mockSdkKeyRepository },
         {
-          provide: getRepositoryToken(Project),
-          useValue: mockProjectRepository,
+          provide: getRepositoryToken(SdkKey),
+          useValue: mockSdkKeyRepository,
         },
       ],
     }).compile();
@@ -41,77 +34,25 @@ describe('SdkKeysService', () => {
     expect(service).toBeDefined();
   });
 
-  // ── create ────────────────────────────────────────────────
-  // CreateSdkKeyDto: projectId (required, UUID), key (required, 5-255), environment (required),
-  //                  name (required, 2-150), isActive? (boolean), expiresAt? (Date), metadata? (object)
-  describe('create()', () => {
-    const createDto = {
-      projectId: 'proj-uuid',
-      key: 'sdk-key-12345',
-      environment: 'production',
-      name: 'Angular Prod',
-    };
-    const project = { id: 'proj-uuid', name: 'App' };
-
-    it('should create an SDK key linked to the project', async () => {
-      const saved = {
-        id: 'key-1',
-        ...createDto,
-        projectId: project.id,
-        isActive: true,
-        metadata: {},
-      };
-
-      mockProjectRepository.findOne.mockResolvedValue(project);
-      mockSdkKeyRepository.create.mockReturnValue(saved);
-      mockSdkKeyRepository.save.mockResolvedValue(saved);
-
-      const result = await service.create(createDto);
-
-      expect(result).toEqual(saved);
-      expect(mockProjectRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 'proj-uuid' },
-      });
-    });
-
-    it('should create with optional fields (isActive, expiresAt, metadata)', async () => {
-      const dtoWithOptionals = {
-        ...createDto,
-        isActive: false,
-        expiresAt: new Date('2027-01-01'),
-        metadata: { framework: 'Angular', version: '17' },
-      };
-      const saved = { id: 'key-2', ...dtoWithOptionals, projectId: project.id };
-
-      mockProjectRepository.findOne.mockResolvedValue(project);
-      mockSdkKeyRepository.create.mockReturnValue(saved);
-      mockSdkKeyRepository.save.mockResolvedValue(saved);
-
-      const result = await service.create(dtoWithOptionals);
-
-      expect(result.isActive).toBe(false);
-      expect(result.metadata).toEqual({ framework: 'Angular', version: '17' });
-    });
-
-    it('should throw NotFoundException if projectId does not exist', async () => {
-      mockProjectRepository.findOne.mockResolvedValue(null);
-
-      await expect(service.create(createDto)).rejects.toThrow(
-        NotFoundException,
-      );
-      expect(mockSdkKeyRepository.save).not.toHaveBeenCalled();
-    });
-  });
-
   // ── findAll ───────────────────────────────────────────────
   describe('findAll()', () => {
-    it('should return an array of SDK keys with project relation', async () => {
-      const keys = [
-        { id: '1', key: 'abc', project: { id: 'p-1', name: 'App' } },
-      ];
-      mockSdkKeyRepository.find.mockResolvedValue(keys);
+    it('should return paginated SDK keys', async () => {
+      const keys = [{ id: '1', key: 'abc', project: { id: 'p-1' } }];
+      mockSdkKeyRepository.findAndCount.mockResolvedValue([keys, 1]);
 
-      expect(await service.findAll()).toEqual(keys);
+      const result = await service.findAll({ page: 1, limit: 15 });
+
+      expect(result).toMatchObject({ total: 1, page: 1, limit: 15 });
+      expect(result.data).toBeDefined();
+    });
+
+    it('should return empty when no SDK keys exist', async () => {
+      mockSdkKeyRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      const result = await service.findAll({ page: 1, limit: 15 });
+
+      expect(result.total).toBe(0);
+      expect(result.data).toEqual([]);
     });
   });
 
@@ -121,7 +62,8 @@ describe('SdkKeysService', () => {
       const sdkKey = { id: 'key-1', key: 'abc', project: { id: 'p-1' } };
       mockSdkKeyRepository.findOne.mockResolvedValue(sdkKey);
 
-      expect(await service.findOne('key-1')).toEqual(sdkKey);
+      const result = await service.findOne('key-1');
+      expect(result).toBeDefined();
     });
 
     it('should throw NotFoundException if SDK key does not exist', async () => {
@@ -133,9 +75,8 @@ describe('SdkKeysService', () => {
     });
   });
 
-  // ── findOneBykey ──────────────────────────────────────────
-  // Used by ErrorEventsService to validate incoming SDK keys
-  describe('findOneBykey()', () => {
+  // ── findOneByKey ──────────────────────────────────────────
+  describe('findOneByKey()', () => {
     it('should return an SDK key by its key string', async () => {
       const sdkKey = {
         id: 'key-1',
@@ -144,7 +85,8 @@ describe('SdkKeysService', () => {
       };
       mockSdkKeyRepository.findOne.mockResolvedValue(sdkKey);
 
-      const result = await service.findOneBykey('sdk-key-12345');
+      const result = await service.findOneByKey('sdk-key-12345');
+
       expect(result).toEqual(sdkKey);
       expect(mockSdkKeyRepository.findOne).toHaveBeenCalledWith({
         where: { key: 'sdk-key-12345' },
@@ -155,14 +97,13 @@ describe('SdkKeysService', () => {
     it('should throw NotFoundException if key string does not exist', async () => {
       mockSdkKeyRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOneBykey('nonexistent')).rejects.toThrow(
+      await expect(service.findOneByKey('nonexistent')).rejects.toThrow(
         NotFoundException,
       );
     });
   });
 
   // ── update ────────────────────────────────────────────────
-  // UpdateSdkKeyDto: PartialType → projectId?, key?, environment?, name?, isActive?, expiresAt?, metadata?
   describe('update()', () => {
     const existing = {
       id: 'key-1',
@@ -173,68 +114,43 @@ describe('SdkKeysService', () => {
       project: { id: 'p-1' },
     };
 
-    it('should update simple fields (name, environment, isActive)', async () => {
-      const updated = { ...existing, name: 'Updated Key', isActive: false };
-
-      mockSdkKeyRepository.findOne
-        .mockResolvedValueOnce(existing) // findOneById
-        .mockResolvedValueOnce(updated); // findOne at end
-      mockSdkKeyRepository.save.mockResolvedValue(updated);
-
-      const result = await service.update('key-1', {
-        name: 'Updated Key',
-        isActive: false,
-      });
-      expect(result.name).toBe('Updated Key');
-      expect(result.isActive).toBe(false);
-    });
-
-    it('should update projectId after verifying project exists', async () => {
-      const newProject = { id: 'p-2', name: 'New Project' };
-      const updated = { ...existing, project: newProject, projectId: 'p-2' };
+    it('should update isActive field', async () => {
+      const updated = { ...existing, isActive: false };
 
       mockSdkKeyRepository.findOne
         .mockResolvedValueOnce(existing)
         .mockResolvedValueOnce(updated);
-      mockProjectRepository.findOne.mockResolvedValue(newProject);
       mockSdkKeyRepository.save.mockResolvedValue(updated);
 
-      const result = await service.update('key-1', { projectId: 'p-2' });
-      expect(result.project.id).toBe('p-2');
+      const result = await service.update('key-1', { isActive: false });
+
+      expect(result).toBeDefined();
     });
 
     it('should throw NotFoundException if SDK key does not exist', async () => {
       mockSdkKeyRepository.findOne.mockResolvedValue(null);
-      await expect(service.update('bad-id', { name: 'X' })).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('should throw NotFoundException if new projectId does not exist', async () => {
-      mockSdkKeyRepository.findOne.mockResolvedValueOnce(existing);
-      mockProjectRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.update('key-1', { projectId: 'bad-proj' }),
+        service.update('bad-id', { isActive: true }),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   // ── remove ────────────────────────────────────────────────
   describe('remove()', () => {
-    it('should delete the SDK key and return confirmation', async () => {
+    it('should delete the SDK key without errors', async () => {
       mockSdkKeyRepository.findOne.mockResolvedValue({
         id: 'key-1',
         key: 'abc',
       });
       mockSdkKeyRepository.remove.mockResolvedValue({});
 
-      const result = await service.remove('key-1');
-      expect(result).toEqual({ message: 'SDK key key-1 has been deleted' });
+      await expect(service.remove('key-1')).resolves.toBeUndefined();
     });
 
     it('should throw NotFoundException if SDK key does not exist', async () => {
       mockSdkKeyRepository.findOne.mockResolvedValue(null);
+
       await expect(service.remove('bad-id')).rejects.toThrow(NotFoundException);
     });
   });

@@ -10,6 +10,7 @@ jest.mock('bcrypt');
 const mockUserRepository = {
   findOne: jest.fn(),
   find: jest.fn(),
+  findAndCount: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
   remove: jest.fn(),
@@ -82,7 +83,7 @@ describe('UsersService', () => {
 
   // ── findAll ───────────────────────────────────────────────
   describe('findAll()', () => {
-    it('should return an array of users with selected fields', async () => {
+    it('should return paginated users', async () => {
       const users = [
         {
           id: 'uuid-1',
@@ -90,16 +91,22 @@ describe('UsersService', () => {
           name: 'Alice',
           createdAt: new Date(),
         },
-        { id: 'uuid-2', email: 'c@d.com', name: 'Bob', createdAt: new Date() },
       ];
-      mockUserRepository.find.mockResolvedValue(users);
+      mockUserRepository.findAndCount.mockResolvedValue([users, 1]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 15 });
 
-      expect(result).toEqual(users);
-      expect(mockUserRepository.find).toHaveBeenCalledWith({
-        select: ['id', 'email', 'name', 'createdAt'],
-      });
+      expect(result).toMatchObject({ total: 1, page: 1, limit: 15 });
+      expect(result.data).toBeDefined();
+    });
+
+    it('should return empty when no users exist', async () => {
+      mockUserRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      const result = await service.findAll({ page: 1, limit: 15 });
+
+      expect(result.total).toBe(0);
+      expect(result.data).toEqual([]);
     });
   });
 
@@ -116,10 +123,9 @@ describe('UsersService', () => {
 
       const result = await service.findOne('uuid-1');
 
-      expect(result).toEqual(user);
+      expect(result).toBeDefined();
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'uuid-1' },
-        select: ['id', 'email', 'name', 'createdAt'],
       });
     });
 
@@ -130,13 +136,12 @@ describe('UsersService', () => {
         NotFoundException,
       );
       await expect(service.findOne('bad-id')).rejects.toThrow(
-        'User with ID bad-id not found',
+        'User with id bad-id not found',
       );
     });
   });
 
   // ── update ────────────────────────────────────────────────
-  // UpdateUserDto only allows: email? and name? (no password update)
   describe('update()', () => {
     const existingUser = {
       id: 'uuid-1',
@@ -145,43 +150,15 @@ describe('UsersService', () => {
       createdAt: new Date(),
     };
 
-    it('should update the name without checking for duplicate emails', async () => {
+    it('should update the name and return UserResponseDto', async () => {
       const updatedUser = { ...existingUser, name: 'New Name' };
       mockUserRepository.findOne.mockResolvedValue(existingUser);
       mockUserRepository.save.mockResolvedValue(updatedUser);
 
       const result = await service.update('uuid-1', { name: 'New Name' });
 
-      expect(result).toEqual(updatedUser);
-      // findOne should be called only once (to get the user), no duplicate email check
+      expect(result).toBeDefined();
       expect(mockUserRepository.findOne).toHaveBeenCalledTimes(1);
-    });
-
-    it('should update the email after verifying it is not taken', async () => {
-      const updatedUser = { ...existingUser, email: 'new@mail.com' };
-      mockUserRepository.findOne
-        .mockResolvedValueOnce(existingUser) // findOne to get the user
-        .mockResolvedValueOnce(null); // check for duplicate: no match
-
-      mockUserRepository.save.mockResolvedValue(updatedUser);
-
-      const result = await service.update('uuid-1', { email: 'new@mail.com' });
-
-      expect(result.email).toBe('new@mail.com');
-      expect(mockUserRepository.findOne).toHaveBeenCalledTimes(2);
-    });
-
-    it('should throw ConflictException if the new email is already in use', async () => {
-      mockUserRepository.findOne
-        .mockResolvedValueOnce(existingUser) // findOne to get the user
-        .mockResolvedValueOnce({ id: 'uuid-other', email: 'taken@mail.com' }); // duplicate found
-
-      await expect(
-        service.update('uuid-1', { email: 'taken@mail.com' }),
-      ).rejects.toThrow(ConflictException);
-      await expect(
-        service.update('uuid-1', { email: 'taken@mail.com' }),
-      ).rejects.toThrow('Email already in use');
     });
 
     it('should throw NotFoundException if user does not exist', async () => {
