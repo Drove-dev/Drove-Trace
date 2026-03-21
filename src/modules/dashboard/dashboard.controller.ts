@@ -6,6 +6,9 @@ import { ValidRoles } from '../auth/interfaces';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import type { UserWithRole } from '../auth/interfaces';
+import { MyStatsDto } from './dto/my-stats.dto';
 
 @Controller('dashboard')
 @ApiBearerAuth('jwt')
@@ -18,5 +21,12 @@ export class DashboardController {
   @HttpCode(HttpStatus.OK)
   async getStats(): Promise<DashboardStatsDto> {
     return this.dashboardService.getStats();
+  }
+
+  @Roles(ValidRoles.admin, ValidRoles.developer, ValidRoles.viewer)
+  @Get('my-stats')
+  @HttpCode(HttpStatus.OK)
+  getMyStats(@GetUser() user: UserWithRole): Promise<MyStatsDto> {
+    return this.dashboardService.getMyStats(user);
   }
 }
