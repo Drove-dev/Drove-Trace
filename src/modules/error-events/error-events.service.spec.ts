@@ -5,10 +5,22 @@ import { ErrorEventsService } from './error-events.service';
 import { ErrorEvent } from './entities/error-event.entity';
 import { SdkKeysService } from '../sdk-keys/sdk-keys.service';
 import { ErrorGroupsService } from '../error-groups/error-groups.service';
+import { Project } from '../projects/entities/project.entity';
+import { SdkKey } from '../sdk-keys/entities/sdk-key.entity';
 
 const mockErrorEventRepository = {
   create: jest.fn(),
   save: jest.fn(),
+  createQueryBuilder: jest.fn(),
+};
+
+const mockProjectRepository = {
+  find: jest.fn(),
+};
+
+const mockSdkKeyRepository = {
+  find: jest.fn(),
+  findOne: jest.fn(), // <- el servicio usa esto directamente
 };
 
 const mockSdkKeysService = {
@@ -32,6 +44,14 @@ describe('ErrorEventsService', () => {
           provide: getRepositoryToken(ErrorEvent),
           useValue: mockErrorEventRepository,
         },
+        {
+          provide: getRepositoryToken(Project), // <- faltaba
+          useValue: mockProjectRepository,
+        },
+        {
+          provide: getRepositoryToken(SdkKey), // <- faltaba
+          useValue: mockSdkKeyRepository,
+        },
         { provide: SdkKeysService, useValue: mockSdkKeysService },
         { provide: ErrorGroupsService, useValue: mockErrorGroupsService },
       ],
@@ -46,9 +66,6 @@ describe('ErrorEventsService', () => {
     expect(service).toBeDefined();
   });
 
-  // ── create ────────────────────────────────────────────────
-  // CreateErrorEventDto required: sdkKey, fingerprint, message, stackTrace, file, line, browser, os, environment
-  //                     optional: url?, release?, sessionId?, userId?, metadata?
   describe('create()', () => {
     const createDto = {
       sdkKey: 'sdk-key-abc',
@@ -70,7 +87,7 @@ describe('ErrorEventsService', () => {
       };
       const savedEvent = { id: 'evt-1', ...createDto, metadata: {} };
 
-      mockSdkKeysService.findOneBykey.mockResolvedValue(sdkEntity);
+      mockSdkKeyRepository.findOne.mockResolvedValue(sdkEntity); // <- corregido
       mockErrorGroupsService.findByFingerprint.mockResolvedValue(null);
       mockErrorGroupsService.create.mockResolvedValue({});
       mockErrorEventRepository.create.mockReturnValue(savedEvent);
@@ -79,9 +96,11 @@ describe('ErrorEventsService', () => {
       const result = await service.create(createDto);
 
       expect(result).toEqual(savedEvent);
-      expect(mockSdkKeysService.findOneBykey).toHaveBeenCalledWith(
-        'sdk-key-abc',
-      );
+      expect(mockSdkKeyRepository.findOne).toHaveBeenCalledWith({
+        where: { key: 'sdk-key-abc' },
+        relations: ['project'],
+        select: { id: true, project: { id: true } },
+      });
     });
 
     it('should create with optional fields when provided', async () => {
@@ -100,7 +119,7 @@ describe('ErrorEventsService', () => {
       };
       const savedEvent = { id: 'evt-2', ...dtoWithOptionals };
 
-      mockSdkKeysService.findOneBykey.mockResolvedValue(sdkEntity);
+      mockSdkKeyRepository.findOne.mockResolvedValue(sdkEntity);
       mockErrorGroupsService.findByFingerprint.mockResolvedValue(null);
       mockErrorEventRepository.create.mockReturnValue(savedEvent);
       mockErrorEventRepository.save.mockResolvedValue(savedEvent);
@@ -112,7 +131,7 @@ describe('ErrorEventsService', () => {
     });
 
     it('should throw BadRequestException if SDK key is invalid', async () => {
-      mockSdkKeysService.findOneBykey.mockResolvedValue(null);
+      mockSdkKeyRepository.findOne.mockResolvedValue(null);
 
       await expect(service.create(createDto)).rejects.toThrow(
         BadRequestException,
@@ -124,7 +143,6 @@ describe('ErrorEventsService', () => {
     });
   });
 
-  // ── findOrCreateErrorGroup ────────────────────────────────
   describe('findOrCreateErrorGroup()', () => {
     it('should increment occurrences if fingerprint already exists', async () => {
       const existingGroup = {
@@ -136,7 +154,7 @@ describe('ErrorEventsService', () => {
       mockErrorGroupsService.findByFingerprint.mockResolvedValue(existingGroup);
       mockErrorGroupsService.update.mockResolvedValue({});
 
-      await service.findOrCreateErrorGroup('fp-123', 'sdk-key-abc');
+      await service.findOrCreateErrorGroup('fp-123', 'proj-1');
 
       expect(mockErrorGroupsService.update).toHaveBeenCalledWith('eg-1', {
         lastSeen: expect.any(Date),
@@ -146,17 +164,10 @@ describe('ErrorEventsService', () => {
     });
 
     it('should create a new group if fingerprint does not exist', async () => {
-      const sdkEntity = {
-        id: 'key-1',
-        key: 'sdk-key-abc',
-        project: { id: 'proj-1' },
-      };
-
       mockErrorGroupsService.findByFingerprint.mockResolvedValue(null);
-      mockSdkKeysService.findOneBykey.mockResolvedValue(sdkEntity);
       mockErrorGroupsService.create.mockResolvedValue({});
 
-      await service.findOrCreateErrorGroup('fp-new', 'sdk-key-abc');
+      await service.findOrCreateErrorGroup('fp-new', 'proj-1');
 
       expect(mockErrorGroupsService.create).toHaveBeenCalledWith({
         fingerprint: 'fp-new',

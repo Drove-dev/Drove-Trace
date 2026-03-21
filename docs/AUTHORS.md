@@ -2,24 +2,29 @@
 
 ## Core Author
 
-- Drove — Backend architecture, database design, SDK foundation, and system implementation.
+**Drove** — Sole architect and implementor of the Errly backend.
 
-## Project Scope
+Responsibilities included:
 
-Error Monitoring MVP backend built with:
+- System architecture and module design (NestJS modular monolith)
+- Relational data modeling (Users, Teams, Projects, SDK Keys, Error Events, Error Groups)
+- JWT authentication strategy and role-based authorization
+- Error ingestion pipeline and fingerprint-based grouping logic
+- REST API design and Swagger / OpenAPI documentation
+- Docker and Docker Compose infrastructure setup
+- Unit testing strategy — 104 tests across 11 suites
 
-- NestJS
-- PostgreSQL
-- TypeORM
-- Swagger
+---
 
-Focused on:
+## Project
 
-- Production-ready backend architecture
-- SDK ingestion pipeline
-- Error observability and tracking
-- SaaS-ready data modeling
+**Errly** is a self-hosteable error monitoring platform built as an MVP to demonstrate production-grade backend engineering practices.
 
-## Future Contributors
+Built with NestJS · TypeORM · PostgreSQL · Docker · Jest
 
-Open for collaboration as the platform evolves.
+---
+
+## Contributing
+
+Errly is open for collaboration as the platform evolves.  
+See [README](../README.md#contributing) for contribution guidelines.
