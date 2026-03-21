@@ -1,19 +1,14 @@
-import { IsNumber, IsOptional } from 'class-validator';
-
 export class DashboardStatsDto {
-  @IsNumber()
-  @IsOptional()
-  totalTeams?: number;
-
-  @IsNumber()
-  @IsOptional()
-  totalProjects?: number;
-
-  @IsNumber()
-  @IsOptional()
-  totalUsers?: number;
-
-  @IsNumber()
-  @IsOptional()
-  totalErrors?: number;
+  totalUsers: number;
+  totalTeams: number;
+  totalProjects: number;
+  totalErrors: number;
+  errorsByProject: { projectId: string; projectName: string; count: number }[];
+  errorsByEnvironment: { environment: string; count: number }[];
+  errorsLast24h: number;
+  errorsLast7days: number;
+  errorsLast30days: number;
+  topErrors: { fingerprint: string; projectName: string; occurrences: number }[];
+  activeSdkKeys: number;
+  inactiveSdkKeys: number;
 }
