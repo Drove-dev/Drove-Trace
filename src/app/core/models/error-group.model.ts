@@ -1,22 +1,31 @@
-export type ErrorStatus =
-  | 'open'
-  | 'investigating'
-  | 'resolved'
-  | 'critical'
-  | 'warning'
-  | 'healthy';
-
 export interface ErrorGroup {
-  id?: string;
-  title: string;
-  file: string;
-  line: number;
-  occurrences: number;
-  status: ErrorStatus;
+  id: string;
+  fingerprint: string;
   firstSeen: string;
   lastSeen: string;
-  assignee: string | null;
-  env: string;
-  sparklinePoints: string;
-  sparklineColor: string;
+  occurrences: number;
+  projectId: string;
+  projectName: string;
+}
+
+export interface PaginatedErrorGroups {
+  data: ErrorGroup[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface ErrorEvent {
+  id: string;
+  message: string;
+  fingerprint: string;
+  environment: string;
+  file: string;
+  line: number;
+  browser: string;
+  os: string;
+  url: string;
+  projectId: string;
+  createdAt: string;
 }
