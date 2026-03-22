@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TeamSettings } from '../models/settings.model';
 
@@ -12,7 +12,7 @@ export class SettingsService {
   private apiUrl = environment.apiUrl;
 
   getTeamSettings(): Observable<TeamSettings> {
-    return this.http.get<TeamSettings>(`${this.apiUrl}/settings/team`);
+    return this.http.get<TeamSettings>(`${this.apiUrl}/settings/team`)
   }
 
   updateTeamSettings(payload: Partial<TeamSettings>): Observable<TeamSettings> {
