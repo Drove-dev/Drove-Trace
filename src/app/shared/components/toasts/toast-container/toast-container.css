@@ -1,0 +1,4 @@
+/* Alineado con la app: PrimeNG/Aura gestiona el overlay; solo ajustes de contexto si se necesitan */
+:host {
+  display: block;
+}
