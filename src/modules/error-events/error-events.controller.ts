@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -29,6 +30,18 @@ import { ErrorEventResponseDto } from './dtos/error-event-response.dto';
 @Controller('error-events')
 export class ErrorEventsController {
   constructor(private readonly errorEventsService: ErrorEventsService) {}
+
+  @Roles(ValidRoles.admin, ValidRoles.developer, ValidRoles.viewer)
+  @UseGuards(RolesGuard)
+  @Get('by-group/:groupId')
+  @HttpCode(HttpStatus.OK)
+  findByGroup(
+    @Param('groupId') groupId: string,
+    @Query() query: PaginationDto,
+    @GetUser() user: UserWithRole,
+  ): Promise<PaginatedResponseDto<ErrorEventResponseDto>> {
+    return this.errorEventsService.findByGroup(groupId, query, user);
+  }
 
   @Roles(ValidRoles.admin, ValidRoles.developer, ValidRoles.viewer)
   @UseGuards(RolesGuard)
