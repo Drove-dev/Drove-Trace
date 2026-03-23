@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateSdkKeyDto } from './create-sdk-key.dto';
+import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class UpdateSdkKeyDto extends PartialType(CreateSdkKeyDto) {}
+export class UpdateSdkKeyDto {
+  @IsNotEmpty()
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
+}

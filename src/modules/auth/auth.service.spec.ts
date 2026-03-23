@@ -1,12 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import {
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -14,10 +10,6 @@ jest.mock('bcrypt');
 
 const mockUserRepository = {
   findOne: jest.fn(),
-};
-
-const mockUsersService = {
-  create: jest.fn(),
 };
 
 const mockJwtService = {
@@ -32,7 +24,6 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: getRepositoryToken(User), useValue: mockUserRepository },
-        { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
@@ -46,37 +37,7 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  // ── create (register) ────────────────────────────────────
-  // Delegates to UsersService.create() using CreateUserDto: email, password, name
-  describe('create()', () => {
-    const createDto = {
-      email: 'test@mail.com',
-      password: 'Secure123',
-      name: 'Test User',
-    };
-
-    it('should delegate to UsersService.create() and return the result', async () => {
-      const createdUser = { name: createDto.name, email: createDto.email };
-      mockUsersService.create.mockResolvedValue(createdUser);
-
-      const result = await service.create(createDto);
-
-      expect(result).toEqual(createdUser);
-      expect(mockUsersService.create).toHaveBeenCalledWith(createDto);
-    });
-
-    // Nota: create() no usa `await` en userService.create(),
-    // por lo que el try/catch no atrapa errores async.
-    // La excepción original se propaga directamente al caller.
-    it('should propagate the original error if UsersService.create() fails', async () => {
-      mockUsersService.create.mockRejectedValue(new Error('DB error'));
-
-      await expect(service.create(createDto)).rejects.toThrow('DB error');
-    });
-  });
-
   // ── login ─────────────────────────────────────────────────
-  // LoginDto: email (required), password (required)
   describe('login()', () => {
     const loginDto = { email: 'test@mail.com', password: 'Secure123' };
 

@@ -13,6 +13,7 @@ import { ErrorGroupsModule } from './modules/error-groups/error-groups.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SdkKeysModule } from './modules/sdk-keys/sdk-keys.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth/jwt-auth.guard';
 
@@ -60,10 +61,12 @@ import { EnvConfiguration } from './config/env.config';
 
     RolesModule,
 
+    DashboardModule,
+
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 1 minute
-        limit: 10, // 10 requests per minute
+        limit: 60, // 10 requests per minute
       },
     ]),
   ],

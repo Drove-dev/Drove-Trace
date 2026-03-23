@@ -28,8 +28,7 @@ export class Project {
   @Column({ type: 'varchar', length: 20, nullable: false })
   environment: ProjectEnvironment;
 
-  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
-  sdkKey: string; //TODO: check if this column is requiered here!
+
 
   @OneToMany(() => SdkKey, (sdkKey) => sdkKey.project)
   sdkKeys: SdkKey[];
