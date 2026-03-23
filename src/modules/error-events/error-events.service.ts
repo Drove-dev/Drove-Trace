@@ -3,6 +3,8 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -18,6 +20,7 @@ import { PaginatedResponseDto } from '../../common/dtos/paginated-response.dto';
 import { ErrorEventResponseDto } from './dtos/error-event-response.dto';
 import { Project } from '../projects/entities/project.entity';
 import { SdkKey } from '../sdk-keys/entities/sdk-key.entity';
+import { ErrorGroup } from '../error-groups/entities/error-group.entity';
 
 @Injectable()
 export class ErrorEventsService {
@@ -30,6 +33,8 @@ export class ErrorEventsService {
     private readonly projectRepository: Repository<Project>,
     @InjectRepository(SdkKey)
     private readonly sdkKeyRepository: Repository<SdkKey>,
+    @InjectRepository(ErrorGroup)
+    private readonly errorGroupRepository: Repository<ErrorGroup>,
     private readonly sdkService: SdkKeysService,
     private readonly errorGroupService: ErrorGroupsService,
   ) {}
@@ -104,6 +109,76 @@ export class ErrorEventsService {
     };
   }
 
+  async findByGroup(
+    groupId: string,
+    query: PaginationDto,
+    user: UserWithRole,
+  ): Promise<PaginatedResponseDto<ErrorEventResponseDto>> {
+    const { page = 1, limit = 15 } = query;
+
+    const errorGroup = await this.errorGroupRepository.findOne({
+      where: { id: groupId },
+      relations: ['project'],
+    });
+
+    if (!errorGroup) {
+      throw new NotFoundException(`Error group with ID ${groupId} not found`);
+    }
+
+    const isAdmin = user.role.some((r) => r.role === ValidRoles.admin);
+
+    if (!isAdmin) {
+      const teamIds = user.role.map((r) => r.teamId);
+      const projects = await this.projectRepository.find({
+        where: { team: { id: In(teamIds) } },
+        select: ['id'],
+      });
+      const projectIds = projects.map((p) => p.id);
+
+      if (!projectIds.includes(errorGroup.project.id)) {
+        throw new ForbiddenException(
+          'You do not have access to this error group',
+        );
+      }
+    }
+
+    const sdkKeys = await this.sdkKeyRepository.find({
+      where: { projectId: errorGroup.project.id },
+      select: ['id'],
+    });
+    const sdkKeyIds = sdkKeys.map((s) => s.id);
+
+    if (sdkKeyIds.length === 0) {
+      return { data: [], total: 0, page, limit, totalPages: 0 };
+    }
+
+    const skip = (page - 1) * limit;
+    const [data, total] = await this.errorEventRepository
+      .createQueryBuilder('errorEvent')
+      .leftJoinAndSelect('errorEvent.sdkKeyEntity', 'sdkKey')
+      .leftJoinAndSelect('sdkKey.project', 'project')
+      .where('errorEvent.fingerprint = :fingerprint', {
+        fingerprint: errorGroup.fingerprint,
+      })
+      .andWhere('errorEvent.sdkKeyId IN (:...sdkKeyIds)', { sdkKeyIds })
+      .orderBy('errorEvent.createdAt', 'DESC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    const plainData = data.map((i) => instanceToPlain(i));
+    const finalData = plainToInstance(ErrorEventResponseDto, plainData, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      data: finalData,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 
   async create(createErrorEventDto: CreateErrorEventDto) {
     const {
