@@ -5,4 +5,5 @@ export enum StoreType {
   TeamMembersStore = 'team-members',
   SdkKeysStore = 'sdk-keys',
   SettingsStore = 'settings',
+  TeamsStore = 'teams',
 }

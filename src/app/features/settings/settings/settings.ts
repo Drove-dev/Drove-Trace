@@ -1,53 +1,93 @@
-import { Component, effect, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SettingsStore } from '../../../store/stores-index';
-
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+} from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
+import { SettingsStore } from '../../../store/settings/settings.store';
+import { UpdateUserPayload } from '../../../core/models/settings.model';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [LucideAngularModule, ReactiveFormsModule],
   templateUrl: './settings.html',
-  styleUrl: './settings.css',
-  providers: [SettingsStore],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Settings {
-  private fb = inject(FormBuilder);
   readonly store = inject(SettingsStore);
 
-  settingsForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required]],
-    slug: ['', [Validators.required]],
+  readonly profileForm = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(2)],
+    }),
+    newPassword:     new FormControl('', { nonNullable: true }),
+    confirmPassword: new FormControl('', { nonNullable: true }),
+  });
+
+  readonly teamForm = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(2)],
+    }),
   });
 
   constructor() {
-    // Sync form with store data
     effect(() => {
-      const data = this.store.teamSettings();
-      if (data) {
-        this.settingsForm.patchValue({
-          name: data.name,
-          slug: data.slug,
-        }, { emitEvent: false });
+      const u = this.store.user();
+      if (u) {
+        this.profileForm.patchValue({ name: u.name }, { emitEvent: false });
+      }
+    });
+    effect(() => {
+      const t = this.store.team();
+      if (t) {
+        this.teamForm.patchValue({ name: t.name }, { emitEvent: false });
       }
     });
   }
 
-  onSave() {
-    if (this.settingsForm.valid) {
-      this.store.saveTeamSettings(this.settingsForm.value);
+  saveProfile(): void {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
+    const { name, newPassword, confirmPassword } = this.profileForm.getRawValue();
+    if (newPassword && newPassword !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+    const payload: UpdateUserPayload = { name };
+    if (newPassword) payload.password = newPassword;
+    this.store.updateUser(payload).subscribe();
+  }
+
+  saveTeam(): void {
+    if (this.teamForm.invalid) {
+      this.teamForm.markAllAsTouched();
+      return;
+    }
+    const { name } = this.teamForm.getRawValue();
+    this.store.updateTeam({ name }).subscribe();
+  }
+
+  deleteAccount(): void {
+    if (confirm('Delete your account permanently? This cannot be undone.')) {
+      this.store.deleteUser().subscribe();
     }
   }
 
-  onDeleteTeam() {
-    if (confirm('Are you sure you want to delete this team? This action is permanent.')) {
-      this.store.deleteTeam();
+  deleteTeam(teamId: string): void {
+    if (confirm('Delete this team permanently? All projects and error logs will be wiped.')) {
+      this.store.deleteTeam(teamId).subscribe();
     }
-  }
-
-  toggleNotification(key: 'errorThresholdAlerts' | 'weeklyDigestEmail' | 'newMemberAlerts') {
-    this.store.toggleNotification(key);
   }
 }
