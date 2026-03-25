@@ -1,6 +1,29 @@
+<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-6 space-y-6">
 
-<basic-table
-  [dataSource]="usersStore"
-  [storeType]="storeType()"
-  [columns]="['name', 'email', 'createdAt', 'actions']"
-  >
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800/60">
+    <div>
+      <!-- <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        Users
+      </h1> -->
+      <button
+        (click)="openForm()"
+        class="btn-primary flex items-center gap-2">
+        <lucide-angular name="plus" [size]="18" />
+        <span>New user</span>
+      </button>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        Manage your platform users.
+      </p>
+    </div>
+  </div>
+
+  <basic-table
+    #table
+    [dataSource]="usersStore"
+    [storeType]="storeType()"
+    [columns]="['name', 'email', 'createdAt', 'actions']"
+  />
+</div>
+
+<app-users-form-modal [data]="data()!" (destroyModal)="data.set(null)"/>

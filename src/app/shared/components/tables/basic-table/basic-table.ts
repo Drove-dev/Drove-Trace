@@ -10,14 +10,11 @@ import { DialogModule } from 'primeng/dialog';
 import { UsersFormModal } from '../../modals/users-form-modal/users-form-modal';
 import { TeamMembersFormModal } from '../../modals/team-members-form-modal/team-members-form-modal';
 import { SdkKeysFormModal } from '../../modals/sdk-keys-form-modal/sdk-keys-form-modal';
+import { TeamsFormModal } from '../../modals/teams-form-modal/teams-form-modal';
 import { User } from '../../../../core/models/user.model';
 import { ConfirmModal } from '../../modals/confirm-modal/confirm-modal';
+import { CustomFormData } from '../../../../core/models/custom-form-data.model';
 import { TeamMembers } from '../../../../features/team-members/team-members';
-
-export interface CustomFormData {
-  data: any;
-  formType: StoreType;
-}
 
 @Component({
   selector: 'basic-table',
@@ -33,12 +30,13 @@ export interface CustomFormData {
     SdkKeysFormModal,
     DialogModule,
     ConfirmModal,
+    TeamsFormModal,
   ],
   templateUrl: './basic-table.html',
   styleUrl: './basic-table.css',
 })
 export class BasicTable implements OnInit {
-  dataSource = input.required<User | TeamMembers | any>();
+  dataSource = input.required<User | any>();
   storeType = input.required<StoreType>();
   columns = input.required<string[]>();
   tableStyles = {
@@ -72,6 +70,8 @@ export class BasicTable implements OnInit {
     if (this.storeType() == 'users') {
       this.dataSource().goToPage(pageNumber);
     } else if (this.storeType() == 'sdk-keys') {
+      this.dataSource().goToPage(pageNumber);
+    } else if (this.storeType() == 'teams') {
       this.dataSource().goToPage(pageNumber);
     }
   }

@@ -139,6 +139,10 @@
   @if (editData()?.formType === 'sdk-keys') {
     <app-sdk-keys-form-modal [data]="editData()" (destroyModal)="editData.set(null)"/>
   }
+
+  @if (editData()?.formType === 'teams') {
+    <app-teams-form-modal [data]="editData()" (destroyModal)="editData.set(null)"/>
+  }
 }
 
 

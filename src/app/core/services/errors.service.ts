@@ -14,7 +14,7 @@ export class ErrorsService {
 
   getErrors(page = 1, limit = 15): Observable<PaginatedErrorGroups> {
     return this.http.get<PaginatedErrorGroups>(`${this.apiUrl}/error-groups`, {
-      params: { page, limit },
+      params: { page: String(page), limit: String(limit) },
     });
   }
 

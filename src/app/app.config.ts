@@ -14,6 +14,7 @@ import { StorageSync } from './core/services/index';
 import { LUCIDE_ICONS, LucideAngularModule, LucideIconProvider } from 'lucide-angular';
 import { APP_ICONS } from './core/icons/icons';
 import { UsersStore } from './store/users/users.store';
+import { ProjectsStore } from './store/projects/projects.store';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
@@ -33,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     UIStore,
     DashboardStore,
     UsersStore,
+    ProjectsStore,
 
     // Services
     StorageSync ,  // ← Angular run the instance at startup

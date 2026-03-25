@@ -1,69 +1,108 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { map, tap } from 'rxjs';
-import { TeamSettings, NotificationSettings } from '../../core/models/settings.model';
+import { catchError, EMPTY, Observable, tap, throwError } from 'rxjs';
 import { SettingsService } from '../../core/services/settings.service';
+import {
+  TeamProfile,
+  UpdateTeamPayload,
+  UpdateUserPayload,
+  UserProfile,
+} from '../../core/models/settings.model';
 
-type SettingsAction =
-  | { type: 'IDLE' }
-  | { type: 'LOADING' }
-  | { type: 'SAVING'; payload: Partial<TeamSettings> }
-  | { type: 'DELETING' };
-
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SettingsStore {
   private settingsService = inject(SettingsService);
 
-  private state = signal<SettingsAction>({ type: 'LOADING' });
-
-  // Local notification settings as signals
-  readonly notifications = signal<NotificationSettings>({
-    errorThresholdAlerts: true,
-    weeklyDigestEmail: true,
-    newMemberAlerts: false,
+  readonly userResource = rxResource({
+    stream: () => this.settingsService.getMe(),
   });
 
-  readonly settingsResource = rxResource<TeamSettings | null, SettingsAction>({
-    params: () => this.state(),
+  readonly teamResource = rxResource({
+    params: () => this.userResource.value()?.teams?.[0]?.teamId,
     stream: (ctx) => {
-      const action = ctx.params;
-      switch (action.type) {
-        case 'SAVING':
-          return this.settingsService.updateTeamSettings(action.payload);
-        case 'DELETING':
-          return this.settingsService.deleteTeam().pipe(
-            map(() => null)
-          );
-        case 'LOADING':
-        default:
-          return this.settingsService.getTeamSettings();
-      }
-    }
+      if (!ctx.params) return EMPTY;
+      return this.settingsService.getTeam(ctx.params);
+    },
   });
 
-  readonly teamSettings = computed(() => this.settingsResource.value());
-  readonly isLoading = this.settingsResource.isLoading;
-  readonly isSaving = computed(() => this.state().type === 'SAVING');
-  readonly isDeleting = computed(() => this.state().type === 'DELETING');
+  readonly user = this.userResource.value;
+  readonly team = this.teamResource.value;
+  readonly isLoadingUser = this.userResource.isLoading;
+  readonly isLoadingTeam = this.teamResource.isLoading;
 
-  saveTeamSettings(payload: Partial<TeamSettings>) {
-    this.state.set({ type: 'SAVING', payload });
+  readonly isSavingUser = signal(false);
+  readonly isSavingTeam = signal(false);
+  readonly isDeletingUser = signal(false);
+  readonly isDeletingTeam = signal(false);
+
+  readonly initials = computed(() => {
+    const u = this.user();
+    if (!u) return '??';
+    const parts = u.name?.trim().split(' ') ?? [];
+    const first = parts[0]?.[0] ?? '';
+    const last = parts[1]?.[0] ?? '';
+    return `${first}${last}`.toUpperCase() || '??';
+  });
+
+  readonly isAdmin = computed(() =>
+    this.user()?.teams?.[0]?.role === 'admin'
+  );
+
+  updateUser(payload: UpdateUserPayload): Observable<UserProfile> {
+    const id = this.user()?.id;
+    if (!id) return EMPTY;
+    this.isSavingUser.set(true);
+    return this.settingsService.updateUser(id, payload).pipe(
+      tap(() => {
+        this.isSavingUser.set(false);
+        this.userResource.reload();
+      }),
+      catchError((err) => {
+        this.isSavingUser.set(false);
+        return throwError(() => err);
+      }),
+    );
   }
 
-  deleteTeam() {
-    this.state.set({ type: 'DELETING' });
+  updateTeam(payload: UpdateTeamPayload): Observable<TeamProfile> {
+    const teamId = this.team()?.id;
+    if (!teamId) return EMPTY;
+    this.isSavingTeam.set(true);
+    return this.settingsService.updateTeam(teamId, payload).pipe(
+      tap(() => {
+        this.isSavingTeam.set(false);
+        this.teamResource.reload();
+      }),
+      catchError((err) => {
+        this.isSavingTeam.set(false);
+        return throwError(() => err);
+      }),
+    );
   }
 
-  toggleNotification(key: keyof NotificationSettings) {
-    this.notifications.update(n => ({
-      ...n,
-      [key]: !n[key]
-    }));
+  deleteUser(): Observable<void> {
+    const id = this.user()?.id;
+    if (!id) return EMPTY;
+    this.isDeletingUser.set(true);
+    return this.settingsService.deleteUser(id).pipe(
+      catchError((err) => {
+        this.isDeletingUser.set(false);
+        return throwError(() => err);
+      }),
+    );
   }
 
-  reload() {
-    this.settingsResource.reload();
+  deleteTeam(teamId: string): Observable<void> {
+    this.isDeletingTeam.set(true);
+    return this.settingsService.deleteTeam(teamId).pipe(
+      catchError((err) => {
+        this.isDeletingTeam.set(false);
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  reload(): void {
+    this.userResource.reload();
   }
 }
