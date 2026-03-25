@@ -1,84 +1,365 @@
-<div class="p-6 space-y-6">
+<div class="p-6 space-y-6 min-h-screen transition-colors duration-500 bg-slate-50 dark:bg-transparent">
 
-  <!-- Header -->
-  <div>
-    <h1 class="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
-    <p class="text-slate-400 text-sm mt-1">Welcome back. Here's what's happening.</p>
+  <div class="animate-in fade-in slide-in-from-left-4 duration-700">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h1>
+    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Welcome back. Here's what's happening.</p>
   </div>
 
-  <!-- Error -->
   @if (dashboardStore.error()) {
-    <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3">
+    <div class="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm rounded-xl px-4 py-3 animate-in zoom-in-95">
       {{ dashboardStore.error() }}
     </div>
   }
 
-  <!-- Loading -->
   @if (dashboardStore.loading()) {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       @for (i of [1,2,3,4]; track i) {
-        <div class="bg-slate-800/60 rounded-2xl p-6 animate-pulse h-32"></div>
+        <div class="bg-slate-200/60 dark:bg-slate-800/60 rounded-2xl p-6 animate-pulse h-32 border border-slate-300 dark:border-slate-700"></div>
       }
     </div>
   }
 
-  <!-- Stats -->
   @if (dashboardStore.summary(); as summary) {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-      <!-- Total Users -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Total Users</span>
-          <div class="w-8 h-8 bg-indigo-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
+      <a [routerLink]="['/users']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-slate-900/40
+                border border-slate-200 dark:border-slate-800/60
+                shadow-sm hover:shadow-xl dark:hover:shadow-indigo-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 dark:bg-indigo-500/10 blur-3xl group-hover:bg-indigo-500/20 transition-all"></div>
+
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-indigo-600 dark:group-hover:text-slate-200 transition-colors">Total Users</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400
+                        group-hover:bg-indigo-600 group-hover:text-white">
+              <lucide-angular name="user" [size]="20" />
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalUsers }}</p>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">+12%</span>
           </div>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.totalUsers }}</p>
-      </div>
+      </a>
 
-      <!-- Total Reports -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Total Reports</span>
-          <div class="w-8 h-8 bg-violet-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
+      <a [routerLink]="['/teams']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-slate-900/40
+                border border-slate-200 dark:border-slate-800/60
+                shadow-sm hover:shadow-xl dark:hover:shadow-violet-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-violet-500/5 dark:bg-violet-500/10 blur-3xl group-hover:bg-violet-500/20 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-violet-600 dark:group-hover:text-slate-200 transition-colors">Total Teams</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400
+                        group-hover:bg-violet-500 group-hover:text-white">
+              <lucide-angular name="users" [size]="20" />
+            </div>
           </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalTeams }}</p>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.totalReports }}</p>
-      </div>
+      </a>
 
-      <!-- Active Errors -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Active Errors</span>
-          <div class="w-8 h-8 bg-red-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+      <a [routerLink]="['/projects']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-slate-900/40
+                border border-slate-200 dark:border-slate-800/60
+                shadow-sm hover:shadow-xl dark:hover:shadow-blue-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 dark:bg-blue-500/10 blur-3xl group-hover:bg-blue-500/20 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-blue-600 dark:group-hover:text-slate-200 transition-colors">Total Projects</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400
+                        group-hover:bg-blue-500 group-hover:text-white">
+              <lucide-angular name="box" [size]="20" />
+            </div>
           </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalProjects }}</p>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.activeErrors }}</p>
-      </div>
+      </a>
 
-      <!-- Resolved Today -->
-      <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-slate-400 text-sm">Resolved Today</span>
-          <div class="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+      <a [routerLink]="['/logs']"
+         class="group relative block overflow-hidden p-6 rounded-2xl transition-all duration-300
+                bg-white dark:bg-red-900/10
+                border border-red-100 dark:border-red-500/20
+                shadow-sm hover:shadow-xl hover:shadow-red-500/20
+                hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-500/5 blur-3xl group-hover:bg-red-500/10 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-red-600 dark:text-red-400/70 text-xs font-bold tracking-widest uppercase">System Errors</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-500
+                        group-hover:bg-red-600 group-hover:text-white">
+              <lucide-angular name="triangle-alert" [size]="20" />
+            </div>
           </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ summary.totalErrors }}</p>
         </div>
-        <p class="text-3xl font-bold text-white">{{ summary.resolvedToday }}</p>
-      </div>
+      </a>
 
     </div>
   }
 
+  @if (dashboardStore.summary(); as summary) {
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         Section A — Error time-range cards (24 h · 7 d · 30 d)
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+      <!-- 24 h -->
+      <div class="group relative overflow-hidden p-6 rounded-2xl transition-all duration-300
+                  bg-white dark:bg-slate-900/40
+                  border border-slate-200 dark:border-slate-800/60
+                  shadow-sm hover:shadow-xl dark:hover:shadow-indigo-500/20
+                  hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 dark:bg-indigo-500/10 blur-3xl group-hover:bg-indigo-500/20 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-indigo-600 dark:group-hover:text-slate-200 transition-colors">Errors 24 h</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400
+                        group-hover:bg-indigo-600 group-hover:text-white">
+              <lucide-angular name="clock" [size]="20" />
+            </div>
+          </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardStore.errorsLast24h() }}</p>
+        </div>
+      </div>
+
+      <!-- 7 d -->
+      <div class="group relative overflow-hidden p-6 rounded-2xl transition-all duration-300
+                  bg-white dark:bg-slate-900/40
+                  border border-slate-200 dark:border-slate-800/60
+                  shadow-sm hover:shadow-xl dark:hover:shadow-violet-500/20
+                  hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-violet-500/5 dark:bg-violet-500/10 blur-3xl group-hover:bg-violet-500/20 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-violet-600 dark:group-hover:text-slate-200 transition-colors">Errors 7 days</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400
+                        group-hover:bg-violet-500 group-hover:text-white">
+              <lucide-angular name="calendar" [size]="20" />
+            </div>
+          </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardStore.errorsLast7days() }}</p>
+        </div>
+      </div>
+
+      <!-- 30 d -->
+      <div class="group relative overflow-hidden p-6 rounded-2xl transition-all duration-300
+                  bg-white dark:bg-slate-900/40
+                  border border-slate-200 dark:border-slate-800/60
+                  shadow-sm hover:shadow-xl dark:hover:shadow-blue-500/20
+                  hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 dark:bg-blue-500/10 blur-3xl group-hover:bg-blue-500/20 transition-all"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-slate-500 dark:text-slate-500 text-xs font-bold tracking-widest uppercase group-hover:text-blue-600 dark:group-hover:text-slate-200 transition-colors">Errors 30 days</span>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                        bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400
+                        group-hover:bg-blue-500 group-hover:text-white">
+              <lucide-angular name="activity" [size]="20" />
+            </div>
+          </div>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardStore.errorsLast30days() }}</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         Sections B · C · D — two-column grid
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- ─── Section B — Errors by environment ─────────────────────────── -->
+      <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm
+                  animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400 fill-mode-both">
+        <div class="flex items-center gap-2 mb-5">
+          <lucide-angular name="server" [size]="16" class="text-slate-400 dark:text-slate-500" />
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Errors by Environment</h3>
+        </div>
+
+        <div class="space-y-3">
+          @for (env of dashboardStore.errorsByEnvironmentWithPct(); track env.environment) {
+            <div class="flex items-center gap-3">
+
+              <!-- pill -->
+              @if (env.environment === 'production') {
+                <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400">{{ env.environment }}</span>
+              } @else if (env.environment === 'staging') {
+                <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400">{{ env.environment }}</span>
+              } @else {
+                <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">{{ env.environment }}</span>
+              }
+
+              <!-- progress bar -->
+              <div class="flex-1 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div class="h-full rounded-full bg-indigo-500/70 dark:bg-indigo-400/60 transition-all duration-500"
+                     [style.width.%]="env.pct"></div>
+              </div>
+
+              <!-- count -->
+              <span class="shrink-0 text-sm font-bold text-slate-700 dark:text-slate-300 w-10 text-right">{{ env.count }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ─── Section C — Top 5 errors ───────────────────────────────────── -->
+      <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm
+                  animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 fill-mode-both">
+        <div class="flex items-center gap-2 mb-5">
+          <lucide-angular name="flame" [size]="16" class="text-slate-400 dark:text-slate-500" />
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Top Errors</h3>
+        </div>
+
+        <div class="space-y-2">
+          @for (err of dashboardStore.topErrors(); track err.fingerprint; let i = $index) {
+            <div class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
+
+              <!-- rank -->
+              <span class="shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-[11px] font-black
+                           text-slate-400 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {{ i + 1 }}
+              </span>
+
+              <!-- fingerprint -->
+              <span class="flex-1 font-mono text-xs text-slate-700 dark:text-slate-300 truncate min-w-0">{{ err.fingerprint }}</span>
+
+              <!-- project badge -->
+              <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 max-w-[100px] truncate">
+                {{ err.projectName }}
+              </span>
+
+              <!-- occurrences -->
+              <span class="shrink-0 text-sm font-bold text-slate-900 dark:text-white w-10 text-right">{{ err.occurrences }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── Section D — SDK keys status ────────────────────────────────── -->
+    <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl p-5 shadow-sm
+                flex items-center gap-8
+                animate-in fade-in slide-in-from-bottom-4 duration-700 delay-600 fill-mode-both">
+
+      <div class="flex items-center gap-2 mr-auto">
+        <lucide-angular name="key-round" [size]="16" class="text-slate-400 dark:text-slate-500" />
+        <span class="text-sm font-bold text-slate-900 dark:text-white">SDK Keys</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Active</span>
+        <span class="text-sm font-black text-slate-900 dark:text-white">{{ dashboardStore.activeSdkKeys() }}</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-600"></span>
+        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Inactive</span>
+        <span class="text-sm font-black text-slate-900 dark:text-white">{{ dashboardStore.inactiveSdkKeys() }}</span>
+      </div>
+
+    </div>
+
+  }
+
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-5 border-bottom border-slate-200 dark:border-slate-800/60 flex justify-between items-center bg-slate-50/50 dark:bg-transparent">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Recent Critical Errors</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-500">Live from production systems</p>
+          </div>
+          <button class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline" [routerLink]="['/error-groups']">View all →</button>
+        </div>
+
+        <div class="divide-y divide-slate-100 dark:divide-slate-800/60">
+          @if (dashboardStore.topErrors().length === 0) {
+            <div class="flex flex-col items-center justify-center gap-2 py-10 text-slate-400 dark:text-slate-500">
+              <lucide-angular name="inbox" [size]="28" />
+              <span class="text-xs font-medium">No errors recorded yet</span>
+            </div>
+          }
+          @for (error of dashboardStore.topErrors(); track error.fingerprint) {
+            <div class="group p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
+              <div class="flex-1 min-w-0">
+                <div class="font-mono text-xs text-slate-900 dark:text-slate-200 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                     [title]="error.fingerprint">
+                  {{ error.fingerprint.length > 40 ? (error.fingerprint | slice:0:40) + '…' : error.fingerprint }}
+                </div>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 max-w-[140px] truncate">
+                  {{ error.projectName }}
+                </span>
+              </div>
+              <svg width="60" height="20" class="hidden sm:block opacity-60">
+                <polyline points="0,18 5,10 10,14 15,4 20,2 25,6 30,0 35,3 40,6 45,8 50,4 55,6" fill="none" class="stroke-red-500" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <div class="text-right shrink-0">
+                <div class="text-sm font-black text-slate-900 dark:text-white">{{ error.occurrences }}</div>
+                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Occurrences</div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl p-5 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Projects Status</h3>
+
+        <div class="space-y-3">
+          @if (dashboardStore.errorsByProject().length === 0) {
+            <div class="flex flex-col items-center justify-center gap-2 py-8 text-slate-400 dark:text-slate-500">
+              <lucide-angular name="folder-open" [size]="28" />
+              <span class="text-xs font-medium">No projects with errors</span>
+            </div>
+          }
+          @for (project of dashboardStore.errorsByProject(); track project.projectId) {
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer group">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]" [title]="project.projectName">{{ project.projectName }}</span>
+                @if (project.count >= 100) {
+                  <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 text-[10px] font-bold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Critical
+                  </span>
+                } @else if (project.count >= 10) {
+                  <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Warning
+                  </span>
+                } @else {
+                  <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Stable
+                  </span>
+                }
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-widest">Production</span>
+                <span class="text-xs font-bold"
+                      [class]="project.count >= 100 ? 'text-red-600 dark:text-red-400' : project.count >= 10 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'">
+                  {{ project.count }} errors
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
 </div>

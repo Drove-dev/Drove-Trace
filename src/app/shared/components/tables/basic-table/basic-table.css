@@ -1,0 +1,11 @@
+/* basic-table.css - Refactored to use Tailwind v4 utilities */
+
+:host {
+  display: block;
+}
+
+/* 
+  Legacy classes removed. 
+  Styles are now managed via basic-table.html (Tailwind v4) 
+  and basic-table.ts (PrimeNG PassThrough tokens).
+*/

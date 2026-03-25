@@ -2,12 +2,12 @@
 import { computed, inject } from '@angular/core';
 import { signal } from '@angular/core';
 import { User, Credentials } from '../../core/models/user.model';
-import { AuthService } from '../../core/services/auth';
+import { Auth } from '../../core/services/auth';
 import { tap } from 'rxjs';
 
 
 export class AuthStore {
-  private authService = inject(AuthService);
+  private authService = inject(Auth);
 
   // Estado
   private _user = signal<User | null>(null);
@@ -21,7 +21,7 @@ export class AuthStore {
 
   readonly isAuthenticated = computed(() => !!this._token());
 
-  readonly fullName = computed(() => this._user() ? `${this._user()?.name}`: '' );
+  readonly name = computed(() => this._user() ? `${this._user()?.name}`: '' );
 
   // readonly isAdmin = computed(() => this._roles().includes('admin'));
 
