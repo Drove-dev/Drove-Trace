@@ -1,0 +1,49 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+import { ConfigService } from '@nestjs/config';
+
+import { User } from 'src/modules/users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { UserWithRole } from '../interfaces';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
+    configService: ConfigService,
+  ) {
+    super({
+      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    });
+  }
+
+  async validate(payload: { id: string }): Promise<UserWithRole> {
+    const { id } = payload;
+
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['team_members', 'team_members.role', 'team_members.team'],
+    });
+
+    if (!user) throw new UnauthorizedException('Token not valid');
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.team_members.map((tm) => {
+        return {
+          id: tm.id,
+          role: tm.role.name,
+          teamId: tm.team.id,
+        };
+      }),
+    };
+  }
+}
