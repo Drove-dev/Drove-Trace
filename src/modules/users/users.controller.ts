@@ -34,7 +34,7 @@ export class UsersController {
 
   // @IsPublic()
   @Roles(ValidRoles.admin)
-  @Post('register')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
