@@ -1,0 +1,62 @@
+name: errly-platform
+
+services:
+  db:
+    image: postgres:14.3
+    container_name: errly-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-errly_db}
+    volumes:
+      # Uso un volumen nombrado, es más limpio y evita problemas de permisos entre SO
+      - errly_postgres_data:/var/lib/postgresql/data
+    networks:
+      - errly-network
+
+  backend:
+    container_name: errly-backend
+    build:
+      context: ./errly_backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Forzamos que internamente busque el contenedor 'db'
+      DB_HOST: db 
+    volumes:
+      - ./errly_backend:/app
+      - /app/node_modules
+    depends_on:
+      - db
+    networks:
+      - errly-network
+
+  frontend:
+    container_name: errly-frontend
+    build:
+      context: ./errly_frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./errly_frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - errly-network
+
+networks:
+  errly-network:
+    driver: bridge
+
+volumes:
+  errly_postgres_data:
