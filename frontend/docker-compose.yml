@@ -1,0 +1,10 @@
+services:
+  frontend:
+    container_name: error-monitor-platform-frontend
+    build: .
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped

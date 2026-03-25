@@ -1,0 +1,62 @@
+import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth-guard';
+import { noAuthGuard } from './core/guards/no-auth-guard';
+import { MainLayout } from './shared/layout/main-layout/main-layout';
+
+export const routes: Routes = [
+  {
+    path: 'auth',
+    canActivate: [noAuthGuard],
+    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+  },
+  {
+    path: '',
+    component: MainLayout,
+    canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'projects',
+        loadComponent: () => import('./features/projects/projects').then((m) => m.Projects),
+      },
+      {
+        path: 'teams',
+        loadComponent: () => import('./features/teams/teams').then((m) => m.Teams),
+      },
+      {
+        path: 'users',
+        loadChildren: () => import('./features/users/users.routes').then((m) => m.USERS_ROUTES),
+      },
+      {
+        path: 'reports',
+        loadChildren: () =>
+          import('./features/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
+      },
+      {
+        path: 'error-groups',
+        loadChildren: () => import('./features/errors/errors.routes').then((m) => m.ERRORS_ROUTES),
+      },
+      {
+        path: 'settings',
+        loadChildren: () =>
+          import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+      },
+      {
+        path: 'team-members',
+        loadChildren: () =>
+          import('./features/team-members/team-members.routes').then((m) => m.TEAM_MEMBERS_ROUTES),
+      },
+      {
+        path: 'sdk-keys',
+        loadChildren: () =>
+          import('./features/sdk-keys/sdk-keys.routes').then((m) => m.SDK_KEYS_ROUTES),
+      },
+    ],
+  },
+  { path: '**', redirectTo: 'dashboard' },
+];

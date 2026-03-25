@@ -1,0 +1,6 @@
+<!-- 3. Light (Favicon / 64x64)   Favicon, avatar-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90" width="64" height="64">
+  <circle cx="45" cy="45" r="40" fill="none" stroke="#0f172a" stroke-width="3"/>
+  <polyline points="13,45 25,45 31,25 38,62 45,35 51,55 57,45 77,45" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="45" cy="45" r="4.5" fill="#DD0031"/>
+</svg>

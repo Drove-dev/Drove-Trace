@@ -1,0 +1,45 @@
+<header class="h-16 flex items-center justify-between px-6 shrink-0 surface border-b">
+
+  <!-- Toggle sidebar -->
+  <button (click)="uiStore.toggleSidebar()" class="btn-ghost w-9 h-9 p-0">
+    <lucide-angular name="menu" [size]="20" />
+  </button>
+
+  <!-- Right actions -->
+  <div class="flex items-center gap-3">
+
+    <!-- Notifications -->
+    <button class="btn-ghost w-9 h-9 p-0 relative">
+      <lucide-angular name="bell" [size]="20" />
+      @if (uiStore.unreadCount() > 0) {
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full"></span>
+      }
+    </button>
+
+    <div class="divider"></div>
+
+    <!-- User info -->
+    <div class="flex items-center gap-3">
+      <div class="text-right hidden sm:block">
+        <p class="text-sm font-medium leading-none" style="color: var(--text-primary)">
+          {{ authStore.name() }}
+        </p>
+        <p class="text-xs mt-0.5" style="color: var(--text-secondary)">
+          is Admin<!-- {{ authStore.isAdmin() ? 'Admin' : 'User' }} -->
+        </p>
+      </div>
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
+        {{ authStore.name().charAt(0) }}
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Logout -->
+    <button (click)="logout()" class="btn-ghost w-9 h-9 p-0 hover:text-red-400">
+      <lucide-angular name="log-out" [size]="20" />
+    </button>
+
+  </div>
+
+</header>

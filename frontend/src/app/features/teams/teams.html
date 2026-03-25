@@ -1,0 +1,26 @@
+<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-6 space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800/60">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        Teams
+      </h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        Manage your organization's teams.
+      </p>
+    </div>
+    <button
+      (click)="table.openForm({ data: {}, formType: storeType() })"
+      class="btn-primary flex items-center gap-2">
+      <lucide-angular name="plus" [size]="18" />
+      <span>New team</span>
+    </button>
+  </div>
+
+  <basic-table
+    #table
+    [dataSource]="teamsStore"
+    [storeType]="storeType()"
+    [columns]="['name', 'ownerName', 'createdAt', 'actions']"
+  />
+</div>
