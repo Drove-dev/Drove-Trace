@@ -34,6 +34,7 @@ function getAppDataSource() {
       ErrorEvent,
       ErrorGroup,
     ],
+    synchronize: true,
   });
 
   return AppDataSource;
@@ -46,6 +47,12 @@ async function run() {
     await dataSource.initialize();
 
     const action = process.argv[2];
+
+    const existingUsers = await dataSource.getRepository(User).count();
+    if (existingUsers > 0) {
+      console.log('🌱 Seed data already exists. Skipping...');
+      return;
+    }
 
     // usage:
     // npm run seed generate

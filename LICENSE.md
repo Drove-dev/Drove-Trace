@@ -20,5 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-For project overview see [README](../README.md).
-For architecture decisions see [ARCHITECTURE](../ARCHITECTURE.md).
+For project overview see [README](README.md).
+
+For architecture decisions see:
+
+- [Backend Architecture](docs/backend-architecture.md).
+- [Frontend Architecture](docs/frontend-architecture.md).

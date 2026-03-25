@@ -146,8 +146,8 @@ Current status: **104 unit tests passing across 11 suites**.
 
 ---
 
-For licensing information see [LICENSE](docs/LICENSE.md).  
-For authorship see [AUTHORS](docs/AUTHORS.md).
+For licensing information see [LICENSE](../LICENSE.md).  
+For authorship see [AUTHORS](../AUTHORS.md).
 
 ---
 

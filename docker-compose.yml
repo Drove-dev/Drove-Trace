@@ -12,15 +12,19 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME:-errly_db}
     volumes:
-      # Uso un volumen nombrado, es más limpio y evita problemas de permisos entre SO
       - errly_postgres_data:/var/lib/postgresql/data
     networks:
       - errly-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-errly_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     container_name: errly-backend
     build:
-      context: ./errly_backend
+      context: ./backend
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
@@ -28,31 +32,33 @@ services:
     env_file:
       - .env
     environment:
-      # Forzamos que internamente busque el contenedor 'db'
       DB_HOST: db 
     volumes:
-      - ./errly_backend:/app
+      - ./backend:/app
       - /app/node_modules
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - errly-network
+    command: sh -c "npm run seed:generate && npm run start:dev"
 
   frontend:
     container_name: errly-frontend
     build:
-      context: ./errly_frontend
+      context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "4200:4200"
     volumes:
-      - ./errly_frontend:/app
+      - ./frontend:/app
       - /app/node_modules
     depends_on:
       - backend
     networks:
       - errly-network
+    command: npm run start -- --host 0.0.0.0
 
 networks:
   errly-network:
