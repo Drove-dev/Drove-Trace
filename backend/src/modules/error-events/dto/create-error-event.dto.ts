@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsString, MinLength, MaxLength, IsNumber, IsOptional, IsObject, IsUrl } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  MaxLength,
+  IsNumber,
+  IsOptional,
+  IsObject,
+  IsUrl,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class CreateErrorEventDto {
@@ -53,7 +62,7 @@ export class CreateErrorEventDto {
   environment: string;
 
   @IsOptional()
-  @IsUrl({ require_protocol: true })
+  // @IsUrl({ require_protocol: true })
   @MaxLength(2048)
   @Transform(({ value }) => value?.trim())
   url?: string;
@@ -79,4 +88,3 @@ export class CreateErrorEventDto {
   @IsOptional()
   metadata?: Record<string, any>;
 }
-

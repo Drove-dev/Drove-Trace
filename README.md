@@ -2,7 +2,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo_dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/logo_light.svg">
-  <img alt="Errly Logo" src="assets/logo_light.svg" width="220">
+  <img alt="DROVE TRACE Logo" src="assets/logo_light.svg" width="220">
 </picture>
 </p>
 
@@ -18,11 +18,11 @@
   <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License" />
 </p>
 
-## 💡 What is Errly?
+## 💡 What is DROVE TRACE?
 
-Errly is an open-source, self-hosted error monitoring platform. It was born from a clear need: current market tools are incredibly powerful, but often overkill, expensive, and complex to maintain for freelancers, junior developers, or small teams.
+DROVE TRACE is an open-source, self-hosted error monitoring platform. It was born from a clear need: current market tools are incredibly powerful, but often overkill, expensive, and complex to maintain for freelancers, junior developers, or small teams.
 
-Errly offers the essentials without the friction:
+DROVE TRACE offers the essentials without the friction:
 
 - 🚫 **No Kafka, Redis, or complex microservices**: Built as a clean, Modular Monolith.
 - 🐳 **Optimized Developer Experience (DX)**: The entire ecosystem (UI, API, and Database) spins up with a single Docker command.
@@ -55,14 +55,14 @@ Built with a strict Clean Architecture pattern separating logic into four distin
 
 ## 🚀 Installation & Quick Start
 
-Errly's priority is a frictionless deployment experience. You don't need to configure Node, Angular, or NestJS on your local machine.
+DROVE TRACE's priority is a frictionless deployment experience. You don't need to configure Node, Angular, or NestJS on your local machine.
 
 **Prerequisites**: You only need Docker installed.
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/errly.git
-   cd errly
+   git clone https://github.com/YOUR-USERNAME/drove-trace.git
+   cd drove-trace
    ```
 
 2. **Configure environment variables**:
@@ -86,7 +86,7 @@ Errly's priority is a frictionless deployment experience. You don't need to conf
 ## 📂 Monorepo Structure
 
 ```text
-/errly
+/drove_trace
   ├── /docs                  # Architectural Decision Records (ADRs)
   ├── /backend               # NestJS API source code (Modular Monolith)
   ├── /frontend              # Angular v21 SPA source code (Clean Architecture)
@@ -99,7 +99,7 @@ Errly's priority is a frictionless deployment experience. You don't need to conf
 
 ## 📌 Project Status & Features
 
-Errly is currently in **Beta (v0.0.1)**.
+DROVE TRACE is currently in **Beta (v0.0.1)**.
 
 ### Current Capabilities:
 - **Full CRUD** for Users, Teams, Projects, SDK Keys, Roles, and Team Members.
@@ -114,7 +114,7 @@ Errly is currently in **Beta (v0.0.1)**.
 
 ## 🛠️ Contributing
 
-Errly actively welcomes feedback and contributions.
+DROVE TRACE actively welcomes feedback and contributions.
 
 1. **Fork the repository**
 2. **Create a feature branch**: `git checkout -b feat/your-feature`
@@ -125,7 +125,7 @@ Errly actively welcomes feedback and contributions.
 
 ## 🤝 Authorship & License
 
-Architected and developed by **DROVE**.
+Architected and developed by **DROVE.dev**.
 
 ✉️ **Contact**: hello@drove.dev
 

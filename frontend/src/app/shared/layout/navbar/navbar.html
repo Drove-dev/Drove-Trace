@@ -25,11 +25,13 @@
           {{ authStore.name() }}
         </p>
         <p class="text-xs mt-0.5" style="color: var(--text-secondary)">
-          is Admin<!-- {{ authStore.isAdmin() ? 'Admin' : 'User' }} -->
+          <!-- Admin{{ authStore.isAdmin() ? 'Admin' : 'User' }} -->
+          {{ settingsStore.user()?.teams?.[0]?.role }}
         </p>
       </div>
       <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
-        {{ authStore.name().charAt(0) }}
+        <!-- {{ authStore.name().charAt(0) }} -->
+          {{ settingsStore.initials() }}
       </div>
     </div>
 

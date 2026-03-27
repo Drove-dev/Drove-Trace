@@ -1,6 +1,6 @@
-# Errly Frontend Architecture Decision Record
+# DROVE TRACE Frontend Architecture Decision Record
 
-This document details the architectural principles and technical stack chosen for the Errly frontend. As a Staff Engineer, these decisions were made to prioritize **maintainability**, **developer velocity**, and **modern reactive patterns** while avoiding unnecessary complexity.
+This document details the architectural principles and technical stack chosen for the DROVE TRACE frontend. As a Staff Engineer, these decisions were made to prioritize **maintainability**, **developer velocity**, and **modern reactive patterns** while avoiding unnecessary complexity.
 
 ---
 

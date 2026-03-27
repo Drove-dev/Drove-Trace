@@ -5,7 +5,7 @@
 
     <!-- Brand -->
     <div class="text-center mb-8">
-      <img src="assets/images/logo/Logo_Vertical_Dark.svg" alt="logo" class="mx-auto w-32 mb-1">
+      <img [src]="uiStore.theme() === 'dark' ? 'assets/images/logo/text_logo_light.svg' : 'assets/images/logo/text_logo_dark.svg'" alt="logo" class="mx-auto w-50 mb-1">
       <p class="text-sm mt-1" style="color: var(--text-secondary)">Sign in to your workspace</p>
     </div>
 

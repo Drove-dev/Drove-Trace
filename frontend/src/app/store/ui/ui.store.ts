@@ -1,4 +1,3 @@
-
 import { computed, signal } from '@angular/core';
 
 export type Theme = 'light' | 'dark';
@@ -10,10 +9,9 @@ export interface Notification {
 }
 
 export class UIStore {
-
   // Estado
   private _sidebarCollapsed = signal<boolean>(false);
-  private _theme = signal<Theme>('light');
+  private _theme = signal<Theme>('dark');
   private _language = signal<string>('en');
   private _notifications = signal<Notification[]>([]);
 
@@ -24,25 +22,25 @@ export class UIStore {
   readonly notifications = this._notifications.asReadonly();
 
   // Computed
-  readonly unreadCount = computed(() =>
-    this._notifications().filter(n => !n.read).length
-  );
+  readonly unreadCount = computed(() => this._notifications().filter((n) => !n.read).length);
 
   // Métodos
   toggleSidebar() {
-    this._sidebarCollapsed.update(v => !v);
+    this._sidebarCollapsed.update((v) => !v);
   }
 
-  setTheme(theme: Theme) { this._theme.set(theme); }
-  setLanguage(lang: string) { this._language.set(lang); }
+  setTheme(theme: Theme) {
+    this._theme.set(theme);
+  }
+  setLanguage(lang: string) {
+    this._language.set(lang);
+  }
 
   addNotification(notification: Notification) {
-    this._notifications.update(list => [...list, notification]);
+    this._notifications.update((list) => [...list, notification]);
   }
 
   markAsRead(id: string) {
-    this._notifications.update(list =>
-      list.map(n => n.id === id ? { ...n, read: true } : n)
-    );
+    this._notifications.update((list) => list.map((n) => (n.id === id ? { ...n, read: true } : n)));
   }
 }

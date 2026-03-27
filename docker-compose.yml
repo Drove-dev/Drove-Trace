@@ -1,28 +1,28 @@
-name: errly-platform
+name: drove-trace-platform
 
 services:
   db:
     image: postgres:14.3
-    container_name: errly-db
+    container_name: drove-trace-db
     restart: always
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME:-errly_db}
+      POSTGRES_DB: ${DB_NAME:-drove-trace_db}
     volumes:
-      - errly_postgres_data:/var/lib/postgresql/data
+      - drove-trace_postgres_data:/var/lib/postgresql/data
     networks:
-      - errly-network
+      - drove-trace-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-errly_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-drove-trace_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   backend:
-    container_name: errly-backend
+    container_name: drove-trace-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -40,11 +40,11 @@ services:
       db:
         condition: service_healthy
     networks:
-      - errly-network
+      - drove-trace-network
     command: sh -c "npm run seed:generate && npm run start:dev"
 
   frontend:
-    container_name: errly-frontend
+    container_name: drove-trace-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -57,12 +57,12 @@ services:
     depends_on:
       - backend
     networks:
-      - errly-network
+      - drove-trace-network
     command: npm run start -- --host 0.0.0.0
 
 networks:
-  errly-network:
+  drove-trace-network:
     driver: bridge
 
 volumes:
-  errly_postgres_data:
+  drove-trace_postgres_data:

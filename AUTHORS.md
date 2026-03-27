@@ -2,7 +2,7 @@
 
 ## Core Author
 
-**DROVE** — Sole architect and full-stack developer of the Errly platform.
+**DROVE** — Sole architect and full-stack developer of the DROVE TRACE platform.
 
 ✉️ **Contact**: [hello@drove.dev](mailto:hello@drove.dev)
 
@@ -35,7 +35,7 @@
 
 ## Project
 
-**Errly** is a self-hosted error monitoring platform built as an MVP to demonstrate production-grade, full-stack software architecture and engineering practices.
+**DROVE TRACE** is a self-hosted error monitoring platform built as an MVP to demonstrate production-grade, full-stack software architecture and engineering practices.
 
 **Built with**:  
 `Angular v21` · `NestJS v11` · `TypeORM` · `PostgreSQL` · `Docker` · `TailwindCSS v4` · `PrimeNG` · `Jest` · `Vitest`
@@ -44,6 +44,6 @@
 
 ## Contributing
 
-Errly is open for collaboration as the platform evolves.
+DROVE TRACE is open for collaboration as the platform evolves.
 
 _See [README](README.md) for contribution guidelines._

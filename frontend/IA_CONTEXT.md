@@ -1,53 +1,54 @@
 # 🧠 AI DEVELOPMENT CONTEXT: ERROR MONITOR FRONTEND
 
-## 1. 🏗️ ARQUITECTURA CORE (Clean Architecture - Angular Standalone)
+## 1. 🏗️ CORE ARCHITECTURE (Clean Architecture - Angular Standalone)
 
-Este proyecto sigue una arquitectura de capas estrictamente separadas. **PROHIBIDO** mezclar lógica de negocio en componentes de presentación.
+This project follows a strictly separated layer architecture. **FORBIDDEN** to mix business logic in presentation components.
 
-- **`src/app/core/`**: Singletons globales. Guards, Interceptors y, sobre todo, **Services** (comunicación directa con API).
-- **`src/app/store/`**: Única fuente de verdad. Manejo de estado reactivo mediante **Angular Signals** y **rxResource**.
-- **`src/app/features/`**: Smart Components (Páginas con Lazy Loading). Invocan al Store.
-- **`src/app/shared/`**: Dumb Components (UI Reutilizable). Solo reciben @Input (signals preferiblemente) y emiten @Output.
+- **`src/app/core/`**: Global singletons. Guards, Interceptors, and especially **Services** (direct communication with API).
+- **`src/app/store/`**: Single source of truth. Reactive state management using **Angular Signals** and **rxResource**.
+- **`src/app/features/`**: Smart Components (Pages with Lazy Loading). They invoke the Store.
+- **`src/app/shared/`**: Dumb Components (Reusable UI). They only receive @Input (preferably signals) and emit @Output.
 
-## 2. 🛠️ STACK TECNOLÓGICO (Versiones Críticas)
+## 2. 🛠️ TECHNOLOGY STACK (Critical Versions)
 
-_Si la versión de la documentación oficial difiere de estas, prioriza estas:_
+_If the official documentation version differs from these, prioritize these:_
 
 - **Framework:** Angular v21.0.0 (Standalone Components ONLY).
-- **State Management:** Angular Signals (`signal`, `computed`) + `rxResource` (rxjs-interop). **NO usar NgRx**.
+- **State Management:** Angular Signals (`signal`, `computed`) + `rxResource` (rxjs-interop). **DO NOT use NgRx**.
 - **UI Framework:** PrimeNG v21.1.2 + @primeuix/themes v2.0.3.
 - **Styles:** TailwindCSS v4.1.12 (Modern Engine).
 - **Icons:** Lucide Angular.
 - **Testing:** Vitest v4.0.8 (No Karma/Jasmine).
 - **TypeScript:** v5.9.2 (Strict Mode ON).
 
-## 3. 🚦 PATRONES DE ESTADO Y FLUJO DE DATOS
+## 3. 🚦 STATE PATTERNS AND DATA FLOW
 
-Para cualquier nueva funcionalidad, el flujo DEBE ser:
+For any new functionality, the flow MUST be:
 
-1. **Service (`core/`)**: Define el método HTTP (Observable).
+1. **Service (`core/`)**: Define the HTTP method (Observable).
 2. **Store (`store/`)**:
-   - Define un `StoreAction` (IDLE, LOADING_PAGE, SEARCHING, etc.).
-   - Usa `rxResource` para envolver la llamada al Service.
-   - Expone Signals para que la UI reaccione.
-3. **Smart Component (`features/`)**: Inyecta el Store y lee las Signals.
-4. **Dumb Component (`shared/`)**: Recibe los datos planos y emite eventos de usuario.
+   - Define a `StoreAction` (IDLE, LOADING_PAGE, SEARCHING, etc.).
+   - Use `rxResource` to wrap the Service call.
+   - Expose Signals for the UI to react.
+3. **Smart Component (`features/`)**: Inject the Store and read the Signals.
+4. **Dumb Component (`shared/`)**: Receives the raw data and emits user events.
 
-## 4. 📝 CONVENCIONES DE CÓDIGO & CALIDAD
+## 4. 📝 CODE CONVENTIONS & QUALITY
 
-- **Signals Over Observables:** Usa `toSignal` o `rxResource` para transformar flujos asíncronos en estados reactivos para la UI.
-- **Typing:** Prohibido el uso de `any`. Si un tipo es `WritableSignal<T>`, no intentes asignarlo directamente a `T`.
-- **Formularios:** Usa `ReactiveFormsModule`. Verifica siempre la existencia de propiedades como `valid` o `errors` mediante safe navigation o chequeos previos.
-- **Naming:** - Componentes: `kebab-case.component.ts`
+- **Signals Over Observables:** Use `toSignal` or `rxResource` to transform asynchronous streams into reactive states for the UI.
+- **Typing:** Use of `any` is forbidden. If a type is `WritableSignal<T>`, do not attempt to assign it directly to `T`.
+- **Forms:** Use `ReactiveFormsModule`. Always verify the existence of properties like `valid` or `errors` using safe navigation or prior checks.
+- **Naming:** - Components: `kebab-case.component.ts`
   - Stores: `domain.store.ts`
   - Interfaces: `domain.model.ts`
 
-## 5. ⚠️ EVITAR ERRORES COMUNES (Lecciones Aprendidas)
+## 5. ⚠️ AVOIDING COMMON ERRORS (Lessons Learned)
 
-- **Data Binding:** No asumas que un componente hijo detectará cambios si no usas Signals o `ChangeDetectionStrategy.OnPush`.
-- **Inconsistencia de Tipos:** Asegúrate de que las interfaces en `core/models` coincidan exactamente con la respuesta del Backend.
-- **Tailwind v4:** Usa las nuevas directivas de la v4; no mezcles configuraciones antiguas de la v3 si causan conflictos de compilación.
+- **Data Binding:** Do not assume a child component will detect changes if you don't use Signals or `ChangeDetectionStrategy.OnPush`.
+- **Type Inconsistency:** Ensure that interfaces in `core/models` exactly match the Backend response.
+- **Tailwind v4:** Use the new v4 directives; do not mix old v3 configurations if they cause compilation conflicts.
 
-## 6. 🚀 INSTRUCCIÓN PARA LA IA
+## 6. 🚀 INSTRUCTION FOR THE IA
 
-> "Actúa como un Senior Angular Developer experto en Signals. Antes de generar código, verifica la capa donde debe residir (Core, Store, Feature o Shared). Usa siempre Standalone Components y prioriza `rxResource` para la gestión de datos asíncronos. Si vas a modificar un componente en `shared/`, asegúrate de no romper su contrato de tipos."
+> "Act as a Senior Angular Developer expert in Signals. Before generating code, verify the layer where it should reside (Core, Store, Feature or Shared). Always use Standalone Components and prioritize `rxResource` for asynchronous data management. If you are going to modify a component in `shared/`, make sure not to break its type contract."
+
