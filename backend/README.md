@@ -1,6 +1,6 @@
-# Errly Backend API
+# DROVE TRACE Backend API
 
-This directory contains the backend service for the Errly platform, built as a **Modular Monolith**.
+This directory contains the backend service for the DROVE TRACE platform, built as a **Modular Monolith**.
 
 🏠 **Global Context**: For project vision, Docker orchestration, and full-stack deployment instructions, refer to the **Root README**.
 
@@ -28,7 +28,7 @@ This directory contains the backend service for the Errly platform, built as a *
 
 ## 🏗️ Architecture Overview
 
-Errly follows a strict modular monolith architecture to enforce domain boundaries without the operational overhead of microservices.
+DROVE TRACE follows a strict modular monolith architecture to enforce domain boundaries without the operational overhead of microservices.
 
 ### Layer Separation
 

@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../store/auth/auth.store';
 import { email, form, FormField, required } from '@angular/forms/signals';
 import { LucideAngularModule } from 'lucide-angular';
-
+import { UIStore } from '../../../store/ui/ui.store';
 
 interface LoginData {
   email: string;
@@ -16,23 +16,20 @@ interface LoginData {
   templateUrl: './login.html',
 })
 export class Login {
-
   private authStore = inject(AuthStore);
   private router = inject(Router);
+  uiStore = inject(UIStore);
 
   loading = signal(false);
   error = signal<string | null>(null);
-    showPassword = signal(false);
+  showPassword = signal(false);
 
-
-  loginModel = signal<LoginData>({ email: '', password: ''});
+  loginModel = signal<LoginData>({ email: '', password: '' });
 
   form = form(this.loginModel, (schema) => {
-    required(schema.email),
-    email(schema.email),
-    required(schema.password)
+    (required(schema.email), email(schema.email), required(schema.password));
     // pattern(schema.password, /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/);
-    });
+  });
 
   submit(event: Event) {
     event.preventDefault();
@@ -40,15 +37,14 @@ export class Login {
     this.loading.set(true);
     this.error.set(null);
 
-     if (this.form.email().invalid() || this.form.password().invalid()) return;
+    if (this.form.email().invalid() || this.form.password().invalid()) return;
 
-    this.authStore.login(this.loginModel()).subscribe(
-      {
-        next: () => this.router.navigate(['/dashboard']),
-        error: () => {
-          this.error.set('Invalid credentials');
-          this.loading.set(false);
-        }
-      });
+    this.authStore.login(this.loginModel()).subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: () => {
+        this.error.set('Invalid credentials');
+        this.loading.set(false);
+      },
+    });
   }
 }
