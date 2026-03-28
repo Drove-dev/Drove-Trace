@@ -6,7 +6,7 @@
 </picture>
 </p>
 
-<h3 align="center">Self-hosted error monitoring platform for developers who don't need enterprise complexity.</h3>
+<h3 align="center">(MVP) Self-hosted error monitoring platform for developers who don't need enterprise complexity.</h3>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.0.1--beta-blue" alt="Version" />
@@ -16,6 +16,10 @@
   <img src="https://img.shields.io/badge/Docker-Orchestrated-2496ed" alt="Docker" />
   <img src="https://img.shields.io/badge/PostgreSQL-v14.3-336791" alt="PostgreSQL" />
   <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License" />
+</p>
+
+<p align="center">
+  <img src="assets/drove_trace_dashboard.png" alt="Drove Trace Dashboard" />
 </p>
 
 ## 💡 What is DROVE TRACE?
@@ -68,9 +72,9 @@ DROVE TRACE's priority is a frictionless deployment experience. You don't need t
 2. **Configure environment variables**:
    Copy the example file to generate your master `.env`.
    ```bash
-   cp .env.example .env
+   cp .env.template .env
    ```
-   *(The default credentials in `.env.example` are sufficient for a local development environment).*
+   *(The default credentials in `.env.template` are sufficient for a local development environment).*
 
 3. **Spin up the platform**:
    Run the master orchestrator. Docker will build the images and boot the database, backend, and frontend connected under the same network.
@@ -80,18 +84,19 @@ DROVE TRACE's priority is a frictionless deployment experience. You don't need t
 
 **You're all set!**
 - 🖥️ **Dashboard UI**: [http://localhost:4200](http://localhost:4200)
-- ⚙️ **REST API**: [http://localhost:3000/api](http://localhost:3000/api)
-- 📖 **Swagger Docs**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+- ⚙️ **REST API**: [http://localhost:3000](http://localhost:3000)
+- 📖 **Swagger Docs**: [http://localhost:3000/api](http://localhost:3000/api)
 
 ## 📂 Monorepo Structure
 
 ```text
 /drove_trace
+  ├── /assets                # Project assets
   ├── /docs                  # Architectural Decision Records (ADRs)
   ├── /backend               # NestJS API source code (Modular Monolith)
   ├── /frontend              # Angular v21 SPA source code (Clean Architecture)
   ├── docker-compose.yml     # Master orchestrator for Self-Hosting
-  ├── .env.example           # Centralized environment variables
+  ├── .env.template          # Centralized environment variables
   ├── AUTHORS.md             # Project authorship
   ├── LICENSE                # MIT License
   └── README.md              # Global documentation (You are here)
@@ -99,7 +104,7 @@ DROVE TRACE's priority is a frictionless deployment experience. You don't need t
 
 ## 📌 Project Status & Features
 
-DROVE TRACE is currently in **Beta (v0.0.1)**.
+DROVE TRACE is currently being built and is in **Beta (v0.0.1)**.
 
 ### Current Capabilities:
 - **Full CRUD** for Users, Teams, Projects, SDK Keys, Roles, and Team Members.

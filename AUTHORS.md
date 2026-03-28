@@ -2,7 +2,7 @@
 
 ## Core Author
 
-**DROVE** — Sole architect and full-stack developer of the DROVE TRACE platform.
+**DROVE.dev** — Sole architect and full-stack developer of the DROVE TRACE platform.
 
 ✉️ **Contact**: [hello@drove.dev](mailto:hello@drove.dev)
 
