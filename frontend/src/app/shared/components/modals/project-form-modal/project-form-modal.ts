@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -8,7 +7,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { ProjectsStore } from '../../../../store/projects/projects.store';
 
@@ -18,10 +17,8 @@ import { TeamsResponse } from '../../../../core/models/team.model';
 
 @Component({
   selector: 'app-project-form-modal',
-  standalone: true,
   imports: [LucideAngularModule, ReactiveFormsModule],
   templateUrl: './project-form-modal.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectFormModal {
   readonly project = input<Project | null>(null);
@@ -32,24 +29,16 @@ export class ProjectFormModal {
 
   private projectsStore = inject(ProjectsStore);
   private teamsService = inject(TeamsService);
+  private fb = inject(FormBuilder);
 
   readonly isSaving = signal<boolean>(false);
   readonly teams = signal<{ id: string; name: string }[]>([]);
   readonly isEdit = computed(() => !!this.project());
 
-  readonly form = new FormGroup({
-    name: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(2)],
-    }),
-    teamId: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    environment: new FormControl<'production' | 'staging' | 'dev'>('production', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
+  readonly form = this.fb.nonNullable.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    teamId: ['', [Validators.required]],
+    environment: ['production' as 'production' | 'staging' | 'dev', [Validators.required]],
   });
 
   constructor() {

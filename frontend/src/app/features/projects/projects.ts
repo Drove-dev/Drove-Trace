@@ -1,16 +1,26 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { ProjectsStore } from '../../store/projects/projects.store';
 import { Project } from '../../core/models/project.model';
 import { ProjectFormModal } from '../../shared/components/modals/project-form-modal/project-form-modal';
+import { DeleteConfirmModal } from '../../shared/components/modals/delete-confirm-modal/delete-confirm-modal';
+import { PageHeader } from '../../shared/components/page-header/page-header';
+import { DataGridView } from '../../shared/components/data-grid-view/data-grid-view';
+import { DataListView } from '../../shared/components/data-list-view/data-list-view';
 
 @Component({
   selector: 'app-projects',
-  standalone: true,
-  imports: [LucideAngularModule, ReactiveFormsModule, ProjectFormModal],
+  imports: [
+    LucideAngularModule,
+    ReactiveFormsModule,
+    ProjectFormModal,
+    DeleteConfirmModal,
+    PageHeader,
+    DataGridView,
+    DataListView,
+  ],
   templateUrl: './projects.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Projects {
   readonly projectsStore = inject(ProjectsStore);
@@ -19,6 +29,8 @@ export class Projects {
   readonly showFormModal = signal<boolean>(false);
   readonly editingProject = signal<Project | null>(null);
   readonly deletingId = signal<string | null>(null);
+  readonly showConfirmModal = signal<boolean>(false);
+  readonly pendingDeleteId = signal<string | null>(null);
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -41,19 +53,39 @@ export class Projects {
     this.editingProject.set(null);
   }
 
-  confirmDelete(id: string, event: Event): void {
-    event.stopPropagation();
+  requestDelete(id: string): void {
+    this.pendingDeleteId.set(id);
+    this.showConfirmModal.set(true);
+  }
+
+  onConfirmDelete(): void {
+    const id = this.pendingDeleteId();
+    if (!id) return;
     this.deletingId.set(id);
     this.projectsStore.deleteProject(id).subscribe({
-      next: () => this.deletingId.set(null),
-      error: () => this.deletingId.set(null),
+      next: () => {
+        this.deletingId.set(null);
+        this.pendingDeleteId.set(null);
+        this.showConfirmModal.set(false);
+      },
+      error: () => {
+        this.deletingId.set(null);
+        this.pendingDeleteId.set(null);
+        this.showConfirmModal.set(false);
+      },
     });
   }
 
-  formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-GB');
+  onCancelDelete(): void {
+    this.pendingDeleteId.set(null);
+    this.showConfirmModal.set(false);
   }
 
+  formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US');
+  }
+
+  // Styles
   getEnvClass(env: string): string {
     switch (env) {
       case 'production':
@@ -64,7 +96,6 @@ export class Projects {
         return 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
     }
   }
-
   getIconColor(env: string): string {
     switch (env) {
       case 'production':
@@ -75,7 +106,6 @@ export class Projects {
         return '#0F6E56';
     }
   }
-
   getIconBg(env: string): string {
     switch (env) {
       case 'production':

@@ -1,309 +1,69 @@
-<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-6 space-y-6">
+<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-3 space-y-6">
 
-  <!-- Header -->
-  <div>
-    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Projects</h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400">Manage your monitored applications.</p>
-  </div>
+  <!-- Header + Error + Topbar -->
+  <app-page-header
+    title="Projects"
+    subtitle="Manage your monitored applications."
+    [error]="projectsStore.error()"
+    searchPlaceholder="Search projects..."
+    [viewMode]="viewMode()"
+    actionLabel="New project"
+    (searchEvent)="projectsStore.search($event)"
+    (viewModeChange)="viewMode.set($event)"
+    (actionEvent)="openCreate()"
+  />
 
-  <!-- Error state -->
-  @if (projectsStore.error()) {
-    <div class="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm rounded-xl px-4 py-3">
-      {{ projectsStore.error() }}
-    </div>
-  }
-
-  <!-- Topbar -->
-  <div class="flex justify-between items-center gap-3 flex-wrap">
-    <!-- Left: search + toggle -->
-    <div class="flex gap-3 items-center">
-      <!-- Search -->
-      <div class="relative">
-        <lucide-icon name="search" [size]="15"
-          class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Search projects..."
-          (input)="onSearch($event)"
-          class="pl-9 pr-3 py-2 bg-white dark:bg-slate-900/40
-                 border border-slate-200 dark:border-slate-800/60
-                 rounded-lg text-sm text-slate-900 dark:text-white
-                 placeholder:text-slate-400 focus:outline-none
-                 focus:ring-2 focus:ring-indigo-500/40 w-56"
-        />
-      </div>
-
-      <!-- Grid / List toggle -->
-      <div class="flex gap-1 p-1 rounded-lg bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800">
-        <button
-          (click)="viewMode.set('grid')"
-          title="Grid view"
-          class="p-1.5 rounded-md transition-colors"
-          [class]="viewMode() === 'grid'
-            ? 'bg-white dark:bg-slate-700 text-indigo-600'
-            : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
-          <lucide-icon name="layout-grid" [size]="15" />
-        </button>
-        <button
-          (click)="viewMode.set('list')"
-          title="List view"
-          class="p-1.5 rounded-md transition-colors"
-          [class]="viewMode() === 'list'
-            ? 'bg-white dark:bg-slate-700 text-indigo-600'
-            : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
-          <lucide-icon name="list" [size]="15" />
-        </button>
-      </div>
-    </div>
-
-    <!-- Right: New project -->
-    <button
-      (click)="openCreate()"
-      class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-xl
-             text-sm font-semibold flex items-center gap-2 transition-colors">
-      <lucide-icon name="plus" [size]="15" />
-      New project
-    </button>
-  </div>
-
-  <!-- Loading skeletons -->
-  @if (projectsStore.isLoading()) {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      @for (i of [1, 2, 3]; track i) {
-        <div class="animate-pulse bg-slate-200/60 dark:bg-slate-800/60 rounded-2xl h-28 border border-slate-300 dark:border-slate-700"></div>
-      }
-    </div>
-  }
+  <!-- Loading skeletons (removed - handled by components) -->
 
   <!-- ─── GRID VIEW ─────────────────────────────────────────────────────────── -->
-  @if (!projectsStore.isLoading() && viewMode() === 'grid') {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      @for (project of projectsStore.projects(); track project.id) {
-        <div class="rounded-2xl overflow-hidden bg-white dark:bg-slate-900/40
-                    border border-slate-200 dark:border-slate-800/60
-                    shadow-sm hover:shadow-md hover:-translate-y-0.5
-                    transition-all duration-200 cursor-pointer">
-
-          <!-- Card top -->
-          <div class="p-5 border-b border-slate-100 dark:border-slate-800/60">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <!-- Icon container -->
-                <div
-                  class="w-10 h-10 rounded-xl flex items-center justify-center"
-                  [class]="getIconBg(project.environment)">
-                  <lucide-icon name="home" [size]="18" [color]="getIconColor(project.environment)" />
-                </div>
-                <div>
-                  <p class="text-sm font-bold text-slate-900 dark:text-white leading-tight">{{ project.name }}</p>
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium
-                               bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mt-0.5">
-                    {{ project.teamName }}
-                  </span>
-                </div>
-              </div>
-              <!-- Env pill -->
-              <span
-                class="px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0"
-                [class]="getEnvClass(project.environment)">
-                {{ project.environment }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Card bottom -->
-          <div class="px-5 py-3 flex items-center justify-between">
-            <span class="text-xs text-slate-400 dark:text-slate-500">
-              Created {{ formatDate(project.createdAt) }}
-            </span>
-            <div class="flex gap-2">
-              <!-- Edit -->
-              <button
-                (click)="openEdit(project, $event)"
-                title="Edit"
-                class="w-7 h-7 flex items-center justify-center rounded-lg
-                       border border-slate-200 dark:border-slate-700
-                       text-slate-400 dark:text-slate-500
-                       hover:bg-indigo-50 dark:hover:bg-indigo-500/10
-                       hover:text-indigo-600 dark:hover:text-indigo-400
-                       hover:border-indigo-200 dark:hover:border-indigo-500/30
-                       transition-colors">
-                <lucide-icon name="pencil" [size]="14" />
-              </button>
-              <!-- Delete -->
-              <button
-                (click)="confirmDelete(project.id, $event)"
-                title="Delete"
-                class="w-7 h-7 flex items-center justify-center rounded-lg
-                       border border-slate-200 dark:border-slate-700
-                       text-slate-400 dark:text-slate-500
-                       hover:bg-red-50 dark:hover:bg-red-500/10
-                       hover:text-red-600 dark:hover:text-red-400
-                       hover:border-red-200 dark:hover:border-red-500/30
-                       transition-colors"
-                [class]="deletingId() === project.id ? 'opacity-50 pointer-events-none' : ''">
-                <lucide-icon name="trash-2" [size]="14" />
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-
-      @empty {
-        <div class="col-span-3 py-16 text-center">
-          <lucide-icon name="folder-open" [size]="32" class="text-slate-300 dark:text-slate-600 mx-auto" />
-          <p class="text-sm text-slate-400 dark:text-slate-500 mt-3">No projects found</p>
-        </div>
-      }
-    </div>
-
-    <!-- Grid Pagination -->
-    @if (projectsStore.totalPages() > 1) {
-      <div class="flex items-center justify-between mt-4 px-1">
-        <span class="text-xs text-slate-400 dark:text-slate-500">
-          {{ projectsStore.totalItems() }} projects
-        </span>
-        <div class="flex items-center gap-1">
-          <button
-            (click)="projectsStore.goToPage(projectsStore.currentPage() - 1)"
-            [disabled]="!projectsStore.hasPrevPage()"
-            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700
-                   bg-white dark:bg-slate-900/40 text-slate-500 dark:text-slate-400
-                   flex items-center justify-center text-sm transition-colors
-                   hover:bg-slate-50 dark:hover:bg-slate-800
-                   disabled:opacity-40 disabled:cursor-not-allowed">
-            <lucide-icon name="chevron-left" [size]="14" />
-          </button>
-          <span class="text-xs text-slate-500 dark:text-slate-400 px-2">
-            {{ projectsStore.currentPage() }} / {{ projectsStore.totalPages() }}
-          </span>
-          <button
-            (click)="projectsStore.goToPage(projectsStore.currentPage() + 1)"
-            [disabled]="!projectsStore.hasNextPage()"
-            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700
-                   bg-white dark:bg-slate-900/40 text-slate-500 dark:text-slate-400
-                   flex items-center justify-center text-sm transition-colors
-                   hover:bg-slate-50 dark:hover:bg-slate-800
-                   disabled:opacity-40 disabled:cursor-not-allowed">
-            <lucide-icon name="chevron-right" [size]="14" />
-          </button>
-        </div>
-      </div>
-    }
+  @if (viewMode() === 'grid') {
+    <app-data-grid-view
+      [items]="projectsStore.projects()"
+      [isLoading]="projectsStore.isLoading()"
+      [cardConfig]="{
+        titleKey: 'name',
+        subtitleKey: 'teamName',
+        environmentKey: 'environment',
+        dateKey: 'createdAt',
+        icon: 'home'
+      }"
+      [currentPage]="projectsStore.currentPage()"
+      [totalPages]="projectsStore.totalPages()"
+      [totalItems]="projectsStore.totalItems()"
+      [hasPrevPage]="projectsStore.hasPrevPage()"
+      [hasNextPage]="projectsStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No projects found"
+      itemLabel="projects"
+      (pageChange)="projectsStore.goToPage($event)"
+      (onEdit)="editingProject.set($event); showFormModal.set(true)"
+      (onDelete)="requestDelete($event)"
+    />
   }
 
   <!-- ─── LIST VIEW ─────────────────────────────────────────────────────────── -->
-  @if (!projectsStore.isLoading() && viewMode() === 'list') {
-    <div class="rounded-2xl overflow-hidden bg-white dark:bg-slate-900/40
-                border border-slate-200 dark:border-slate-800/60 shadow-sm">
-
-      <!-- Table header -->
-      <div class="grid grid-cols-[1fr_130px_120px_110px_80px] gap-4
-                  px-5 py-3 bg-slate-50/50 dark:bg-slate-800/30
-                  border-b border-slate-200 dark:border-slate-800/60">
-        <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Project</span>
-        <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Team</span>
-        <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Environment</span>
-        <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Created</span>
-        <span class="text-[11px] font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">Actions</span>
-      </div>
-
-      <!-- Rows -->
-      <div class="divide-y divide-slate-100 dark:divide-slate-800/60">
-        @for (project of projectsStore.projects(); track project.id) {
-          <div class="grid grid-cols-[1fr_130px_120px_110px_80px] gap-4
-                      px-5 py-3.5 items-center
-                      hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-            <!-- Name + ID -->
-            <div>
-              <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ project.name }}</p>
-              <p class="font-mono text-[11px] text-slate-400 dark:text-slate-500 truncate">{{ project.id }}</p>
-            </div>
-            <!-- Team -->
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium
-                         bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 w-fit">
-              {{ project.teamName }}
-            </span>
-            <!-- Environment -->
-            <span
-              class="px-2.5 py-0.5 rounded-full text-xs font-bold w-fit"
-              [class]="getEnvClass(project.environment)">
-              {{ project.environment }}
-            </span>
-            <!-- Created -->
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ formatDate(project.createdAt) }}</span>
-            <!-- Actions -->
-            <div class="flex gap-2">
-              <button
-                (click)="openEdit(project, $event)"
-                title="Edit"
-                class="w-7 h-7 flex items-center justify-center rounded-lg
-                       border border-slate-200 dark:border-slate-700
-                       text-slate-400 dark:text-slate-500
-                       hover:bg-indigo-50 dark:hover:bg-indigo-500/10
-                       hover:text-indigo-600 dark:hover:text-indigo-400
-                       hover:border-indigo-200 dark:hover:border-indigo-500/30
-                       transition-colors">
-                <lucide-icon name="pencil" [size]="14" />
-              </button>
-              <button
-                (click)="confirmDelete(project.id, $event)"
-                title="Delete"
-                class="w-7 h-7 flex items-center justify-center rounded-lg
-                       border border-slate-200 dark:border-slate-700
-                       text-slate-400 dark:text-slate-500
-                       hover:bg-red-50 dark:hover:bg-red-500/10
-                       hover:text-red-600 dark:hover:text-red-400
-                       hover:border-red-200 dark:hover:border-red-500/30
-                       transition-colors"
-                [class]="deletingId() === project.id ? 'opacity-50 pointer-events-none' : ''">
-                <lucide-icon name="trash-2" [size]="14" />
-              </button>
-            </div>
-          </div>
-        }
-
-        @empty {
-          <div class="p-8 text-center">
-            <lucide-icon name="folder-open" [size]="28" class="text-slate-300 dark:text-slate-600 mx-auto" />
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">No projects found</p>
-          </div>
-        }
-      </div>
-
-      <!-- List Pagination -->
-      @if (projectsStore.totalPages() > 1) {
-        <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-800/60
-                    flex items-center justify-between">
-          <span class="text-xs text-slate-400">{{ projectsStore.totalItems() }} projects</span>
-          <div class="flex items-center gap-1">
-            <button
-              (click)="projectsStore.goToPage(projectsStore.currentPage() - 1)"
-              [disabled]="!projectsStore.hasPrevPage()"
-              class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700
-                     bg-white dark:bg-slate-900/40 text-slate-500 dark:text-slate-400
-                     flex items-center justify-center text-sm transition-colors
-                     hover:bg-slate-50 dark:hover:bg-slate-800
-                     disabled:opacity-40 disabled:cursor-not-allowed">
-              <lucide-icon name="chevron-left" [size]="14" />
-            </button>
-            <span class="text-xs text-slate-500 dark:text-slate-400 px-2">
-              {{ projectsStore.currentPage() }} / {{ projectsStore.totalPages() }}
-            </span>
-            <button
-              (click)="projectsStore.goToPage(projectsStore.currentPage() + 1)"
-              [disabled]="!projectsStore.hasNextPage()"
-              class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700
-                     bg-white dark:bg-slate-900/40 text-slate-500 dark:text-slate-400
-                     flex items-center justify-center text-sm transition-colors
-                     hover:bg-slate-50 dark:hover:bg-slate-800
-                     disabled:opacity-40 disabled:cursor-not-allowed">
-              <lucide-icon name="chevron-right" [size]="14" />
-            </button>
-          </div>
-        </div>
-      }
-    </div>
+  @if (viewMode() === 'list') {
+    <app-data-list-view
+      [items]="projectsStore.projects()"
+      [isLoading]="projectsStore.isLoading()"
+      [columns]="[
+        { key: 'name', label: 'Project',     width: '1fr',   type: 'mono' },
+        { key: 'teamName', label: 'Team',    width: '130px', type: 'badge' },
+        { key: 'environment', label: 'Environment', width: '120px', type: 'env' },
+        { key: 'createdAt', label: 'Created', width: '110px', type: 'date' }
+      ]"
+      [currentPage]="projectsStore.currentPage()"
+      [totalPages]="projectsStore.totalPages()"
+      [totalItems]="projectsStore.totalItems()"
+      [hasPrevPage]="projectsStore.hasPrevPage()"
+      [hasNextPage]="projectsStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No projects found"
+      itemLabel="projects"
+      (pageChange)="projectsStore.goToPage($event)"
+      (onEdit)="editingProject.set($event); showFormModal.set(true)"
+      (onDelete)="requestDelete($event)"
+    />
   }
 
   <!-- Modal -->
@@ -313,6 +73,16 @@
       [visible]="showFormModal()"
       (closed)="closeModal()"
       (saved)="closeModal()"
+    />
+  }
+  <!-- Confirm delete modal -->
+  @if (showConfirmModal()) {
+    <app-delete-confirm-modal
+      title="Delete Project"
+      message="This will permanently remove the project from the system. This action cannot be undone."
+      [isLoading]="!!deletingId()"
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()"
     />
   }
 </div>
