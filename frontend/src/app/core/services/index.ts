@@ -5,5 +5,5 @@ export { StorageSync } from './storage-sync';
 export { SdkKeysService } from './sdk-keys';
 export { TeamMembersService } from './team-members';
 export { SettingsService } from './settings.service';
-export { ProjectsService } from './projects';
+export { ProjectsService } from './projects.service';
 export { TeamsService } from './teams.service';

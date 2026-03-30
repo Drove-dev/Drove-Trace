@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { delay, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   CreateProjectPayload,
@@ -22,7 +22,9 @@ export class ProjectsService {
     if (search?.trim()) {
       params['search'] = search.trim();
     }
-    return this.http.get<PaginatedProjects>(`${this.apiUrl}/projects`, { params });
+    return this.http
+      .get<PaginatedProjects>(`${this.apiUrl}/projects`, { params })
+      .pipe(delay(3000));
   }
 
   createProject(payload: CreateProjectPayload): Observable<Project> {

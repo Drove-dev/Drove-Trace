@@ -1,0 +1,73 @@
+<div class="mb-6 w-full">
+  <!-- Header -->
+<div>
+  <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ title() }}</h1>
+  @if (subtitle()) {
+    <p class="text-sm text-slate-500 dark:text-slate-400">{{ subtitle() }}</p>
+  }
+</div>
+
+<!-- Error state -->
+@if (error()) {
+  <div class="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm rounded-xl px-4 py-3">
+    {{ error() }}
+  </div>
+}
+
+<!-- Topbar -->
+<div class="flex justify-between items-center gap-3 flex-wrap">
+  <!-- Left: search + toggle -->
+  <div class="flex gap-3 items-center">
+    <!-- Search -->
+    <div class="relative">
+      <lucide-icon name="search" [size]="15"
+        class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      <input
+        type="text"
+        [placeholder]="searchPlaceholder()"
+        (input)="onSearch($event)"
+        class="pl-9 pr-3 py-2 bg-white dark:bg-slate-900/40
+               border border-slate-200 dark:border-slate-800/60
+               rounded-lg text-sm text-slate-900 dark:text-white
+               placeholder:text-slate-400 focus:outline-none
+               focus:ring-2 focus:ring-indigo-500/40 w-56"
+      />
+    </div>
+
+    <!-- Grid / List toggle -->
+    <div class="flex gap-1 p-1 rounded-lg bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800">
+      <button
+        (click)="viewModeChange.emit('grid')"
+        title="Grid view"
+        class="p-1.5 rounded-md transition-colors"
+        [class]="viewMode() === 'grid'
+          ? 'bg-white dark:bg-slate-700 text-indigo-600'
+          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
+        <lucide-icon name="layout-grid" [size]="15" />
+      </button>
+      <button
+        (click)="viewModeChange.emit('list')"
+        title="List view"
+        class="p-1.5 rounded-md transition-colors"
+        [class]="viewMode() === 'list'
+          ? 'bg-white dark:bg-slate-700 text-indigo-600'
+          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
+        <lucide-icon name="list" [size]="15" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Right: Action button -->
+  @if (actionLabel()) {
+    <button
+      (click)="actionEvent.emit()"
+      class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-xl
+             text-sm font-semibold flex items-center gap-2 transition-colors">
+      <lucide-icon name="plus" [size]="15" />
+      {{ actionLabel() }}
+    </button>
+  }
+</div>
+
+
+</div>

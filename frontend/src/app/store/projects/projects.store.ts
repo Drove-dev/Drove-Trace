@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { ProjectsService } from '../../core/services/projects';
+import { ProjectsService } from '../../core/services/projects.service';
 import {
   CreateProjectPayload,
   PaginatedProjects,
@@ -19,18 +19,17 @@ export class ProjectsStore {
   readonly searchQuery = signal<string>('');
   readonly selectedProject = signal<Project | null>(null);
 
-  readonly projectsResource = rxResource<PaginatedProjects, { page: number; search: string; limit: number }>({
+  readonly projectsResource = rxResource<
+    PaginatedProjects,
+    { page: number; search: string; limit: number }
+  >({
     params: () => ({
       page: this.currentPage(),
       search: this.searchQuery(),
       limit: this.pageSize(),
     }),
     stream: (ctx) =>
-      this.projectsService.getProjects(
-        ctx.params.page,
-        ctx.params.limit,
-        ctx.params.search,
-      ),
+      this.projectsService.getProjects(ctx.params.page, ctx.params.limit, ctx.params.search),
   });
 
   readonly projects = computed(() => this.projectsResource.value()?.data ?? []);
@@ -68,20 +67,14 @@ export class ProjectsStore {
   }
 
   createProject(payload: CreateProjectPayload): Observable<Project> {
-    return this.projectsService.createProject(payload).pipe(
-      tap(() => this.reload()),
-    );
+    return this.projectsService.createProject(payload).pipe(tap(() => this.reload()));
   }
 
   updateProject(id: string, payload: UpdateProjectPayload): Observable<Project> {
-    return this.projectsService.updateProject(id, payload).pipe(
-      tap(() => this.reload()),
-    );
+    return this.projectsService.updateProject(id, payload).pipe(tap(() => this.reload()));
   }
 
   deleteProject(id: string): Observable<void> {
-    return this.projectsService.deleteProject(id).pipe(
-      tap(() => this.reload()),
-    );
+    return this.projectsService.deleteProject(id).pipe(tap(() => this.reload()));
   }
 }

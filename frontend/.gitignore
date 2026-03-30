@@ -45,3 +45,8 @@ Thumbs.db
 # Environment files
 src/environments/environment.ts
 src/environments/environment.development.ts
+
+# AI Context
+
+.FRONTEND_CONTEXT.md
+.AI_CONTEXT.md
