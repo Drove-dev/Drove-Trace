@@ -7,7 +7,7 @@ import { delay, map, Observable, tap } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class Users {
+export class UsersService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 

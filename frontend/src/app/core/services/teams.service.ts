@@ -9,16 +9,15 @@ export class TeamsService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
-  getTeams(page = 1, limit = 10): Observable<TeamsResponse> {
-    return this.http.get<TeamsResponse>(`${this.apiUrl}/teams`, {
-      params: { page: String(page), limit: String(limit) },
-    });
-  }
-
-  getTeamByName(name: string): Observable<Team[]> {
-    return this.http.get<Team[]>(`${this.apiUrl}/teams`, {
-      params: { search: name },
-    });
+  getTeams(page = 1, limit = 15, search = ''): Observable<TeamsResponse> {
+    const params: Record<string, string> = {
+      page: String(page),
+      limit: String(limit),
+    };
+    if (search?.trim()) {
+      params['search'] = search.trim();
+    }
+    return this.http.get<TeamsResponse>(`${this.apiUrl}/teams`, { params }).pipe(delay(3000));
   }
 
   createTeam(payload: CreateTeamPayload): Observable<Team> {

@@ -1,26 +1,86 @@
-<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-6 space-y-6">
-  <!-- Header -->
-  <div class="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800/60">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-        Teams
-      </h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-        Manage your organization's teams.
-      </p>
-    </div>
-    <button
-      (click)="table.openForm({ data: {}, formType: storeType() })"
-      class="btn-primary flex items-center gap-2">
-      <lucide-angular name="plus" [size]="18" />
-      <span>New team</span>
-    </button>
-  </div>
+<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-3 space-y-6">
 
-  <basic-table
-    #table
-    [dataSource]="teamsStore"
-    [storeType]="storeType()"
-    [columns]="['name', 'ownerName', 'createdAt', 'actions']"
+  <!-- Header -->
+  <app-page-header
+    title="Teams"
+    subtitle="Manage your organization's teams."
+    [error]="teamsStore.error()"
+    searchPlaceholder="Search teams..."
+    [viewMode]="viewMode()"
+    actionLabel="New team"
+    (searchEvent)="onSearch($event)"
+    (viewModeChange)="viewMode.set($event)"
+    (actionEvent)="openCreate()"
   />
+
+  <!-- ─── GRID VIEW ─────────────────────────────────────────────────────────── -->
+  @if (viewMode() === 'grid') {
+    <app-data-grid-view
+      [items]="teamsStore.teams()"
+      [isLoading]="teamsStore.isLoading()"
+      [cardConfig]="{
+        titleKey: 'name',
+        subtitleKey: 'ownerName',
+        environmentKey: 'name',
+        dateKey: 'createdAt',
+        icon: 'users'
+      }"
+      [currentPage]="teamsStore.currentPage()"
+      [totalPages]="teamsStore.totalPages()"
+      [totalItems]="teamsStore.totalItems()"
+      [hasPrevPage]="teamsStore.hasPrevPage()"
+      [hasNextPage]="teamsStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No teams found"
+      itemLabel="teams"
+      (pageChange)="teamsStore.goToPage($event)"
+      (onEdit)="openEdit($event)"
+      (onDelete)="requestDelete($event)"
+    />
+  }
+
+  <!-- ─── LIST VIEW ─────────────────────────────────────────────────────────── -->
+  @if (viewMode() === 'list') {
+    <app-data-list-view
+      [items]="teamsStore.teams()"
+      [isLoading]="teamsStore.isLoading()"
+      [columns]="[
+        { key: 'name', label: 'Team',       width: '1fr',   type: 'text' },
+        { key: 'ownerName', label: 'Owner', width: '200px', type: 'badge' },
+        { key: 'createdAt', label: 'Created', width: '120px', type: 'date' }
+      ]"
+      [currentPage]="teamsStore.currentPage()"
+      [totalPages]="teamsStore.totalPages()"
+      [totalItems]="teamsStore.totalItems()"
+      [hasPrevPage]="teamsStore.hasPrevPage()"
+      [hasNextPage]="teamsStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No teams found"
+      itemLabel="teams"
+      (pageChange)="teamsStore.goToPage($event)"
+      (onEdit)="openEdit($event)"
+      (onDelete)="requestDelete($event)"
+    />
+  }
+
+  <!-- Form Modal -->
+  @if (showFormModal()) {
+    <app-team-form-modal
+      [team]="editingTeam()"
+      [visible]="showFormModal()"
+      (closed)="closeModal()"
+      (saved)="closeModal()"
+    />
+  }
+
+  <!-- Confirm delete modal -->
+  @if (showConfirmModal()) {
+    <app-delete-confirm-modal
+      title="Delete Team"
+      message="This will permanently remove the team and all its associations. This action cannot be undone."
+      [isLoading]="!!deletingId()"
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()"
+    />
+  }
 </div>

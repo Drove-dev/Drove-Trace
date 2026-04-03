@@ -68,11 +68,13 @@
               </div>
             </div>
             <!-- Environment pill -->
-            <span
-              class="px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0"
-              [class]="getEnvClass(getValue(item, cardConfig().environmentKey))">
-              {{ getValue(item, cardConfig().environmentKey) }}
-            </span>
+            @if (cardConfig().environmentKey) {
+              <span
+                class="px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0"
+                [class]="getEnvClass(getValue(item, cardConfig().environmentKey))">
+                {{ getValue(item, cardConfig().environmentKey) }}
+              </span>
+            }
           </div>
         </div>
 
