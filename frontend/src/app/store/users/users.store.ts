@@ -2,7 +2,7 @@ import { computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { map, tap } from 'rxjs';
 import { User, UsersResponse } from '../../core/models/user.model';
-import { Users } from '../../core/services/users';
+import { UsersService } from '../../core/services/users.service';
 
 type StoreAction =
   | { type: 'IDLE' }
@@ -13,7 +13,7 @@ type StoreAction =
   | { type: 'DELETING'; id: string };
 
 export class UsersStore {
-  private usersService = inject(Users);
+  private usersService = inject(UsersService);
 
   private state = signal<StoreAction>({ type: 'LOADING_PAGE', page: 1 });
 
