@@ -43,8 +43,8 @@ For any new functionality, the flow MUST be:
   - Interfaces: `domain.model.ts`
 
 ## 5. ⚠️ AVOIDING COMMON ERRORS (Lessons Learned)
-
-- **Data Binding:** Do not assume a child component will detect changes if you don't use Signals or `ChangeDetectionStrategy.OnPush`.
+- **Zonelees** Current version of Angular is zonelees. This means that we need to use signals to update the UI and do not use `ChangeDetectionStrategy.OnPush`.
+- **Standalone Components** Current version of Angular is standalone components. This means that we dont use `NgModule` and not need to specify `standalone: true` in every component.
 - **Type Inconsistency:** Ensure that interfaces in `core/models` exactly match the Backend response.
 - **Tailwind v4:** Use the new v4 directives; do not mix old v3 configurations if they cause compilation conflicts.
 

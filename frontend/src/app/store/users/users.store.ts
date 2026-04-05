@@ -1,92 +1,80 @@
-import { computed, inject, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { map, tap } from 'rxjs';
-import { User, UsersResponse } from '../../core/models/user.model';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { UsersService } from '../../core/services/users.service';
+import {
+  CreateUserPayload,
+  PaginatedUsers,
+  UpdateUserPayload,
+  User,
+} from '../../core/models/user.model';
 
-type StoreAction =
-  | { type: 'IDLE' }
-  | { type: 'LOADING_PAGE'; page: number }
-  | { type: 'SEARCHING'; name: string }
-  | { type: 'CREATING'; user: Partial<User> }
-  | { type: 'UPDATING'; user: Partial<User> }
-  | { type: 'DELETING'; id: string };
-
+@Injectable({ providedIn: 'root' })
 export class UsersStore {
   private usersService = inject(UsersService);
 
-  private state = signal<StoreAction>({ type: 'LOADING_PAGE', page: 1 });
+  readonly currentPage = signal<number>(1);
+  readonly pageSize = signal<number>(15);
+  readonly searchQuery = signal<string>('');
+  readonly selectedUser = signal<User | null>(null);
 
-  readonly usersResource = rxResource<UsersResponse, StoreAction>({
-    params: () => this.state(),
-    stream: (ctx) => {
-      const action = ctx.params;
-      switch (action.type) {
-        case 'SEARCHING':
-          return this.usersService.getUserByName(action.name).pipe(
-            map((response) => {
-              return { data: response, total: response.length };
-            }),
-          );
-        case 'UPDATING':
-          return this.usersService.updateUser(action.user).pipe(
-            map(() => ({ data: [], total: 1 })),
-            tap(() => this.goToPage(1)),
-          );
-        case 'CREATING':
-          return this.usersService.createUser(action.user).pipe(
-            map(() => ({ data: [], total: 1 })),
-            tap(() => this.goToPage(1)),
-          );
-        case 'DELETING':
-          return this.usersService.deleteUser(action.id).pipe(tap(() => this.goToPage(1)));
-        case 'LOADING_PAGE':
-          return this.usersService.getUsers(action.page);
-        default:
-          return this.usersService.getUsers(1);
-      }
-    },
+  readonly usersResource = rxResource<
+    PaginatedUsers,
+    { page: number; search: string; limit: number }
+  >({
+    params: () => ({
+      page: this.currentPage(),
+      search: this.searchQuery(),
+      limit: this.pageSize(),
+    }),
+    stream: (ctx) =>
+      this.usersService.getUsers(ctx.params.page, ctx.params.limit, ctx.params.search),
   });
 
-  readonly statusMessage = computed(() => {
-    const s = this.state();
-    if (!this.usersResource.isLoading()) return 'Ready';
-    if (s.type === 'SEARCHING') return `Searching for "${s.name}"...`;
-    if (s.type === 'UPDATING') return 'Updating user...';
-    if (s.type === 'DELETING') return 'Deleting user...';
-    if (s.type === 'CREATING') return 'Creating user...';
-    return 'Loading users...';
-  });
-
-  readonly data = computed(() => this.usersResource.value()?.data ?? []);
-  readonly total = computed(() => this.usersResource.value()?.total ?? 0);
+  readonly users = computed(() => this.usersResource.value()?.data ?? []);
+  readonly totalItems = computed(() => this.usersResource.value()?.total ?? 0);
+  readonly totalPages = computed(() => this.usersResource.value()?.totalPages ?? 0);
   readonly isLoading = this.usersResource.isLoading;
 
-  goToPage(page: number) {
-    this.state.set({ type: 'LOADING_PAGE', page });
+  readonly hasPrevPage = computed(() => this.currentPage() > 1);
+  readonly hasNextPage = computed(() => this.currentPage() < this.totalPages());
+
+  readonly error = computed<string | null>(() => {
+    const err = this.usersResource.error();
+    if (!err) return null;
+    if (err instanceof Error) return err.message;
+    return 'An unexpected error occurred';
+  });
+
+  goToPage(page: number): void {
+    const total = this.totalPages();
+    if (page < 1 || page > total) return;
+    this.currentPage.set(page);
   }
 
-  searchByName(name: string) {
-    if (name.length >= 3) {
-      this.state.set({ type: 'SEARCHING', name });
-    } else if (name.length === 0) {
-      this.goToPage(1);
-    }
+  search(query: string): void {
+    this.currentPage.set(1);
+    this.searchQuery.set(query);
   }
 
-  createUser(user: any) {
-    this.state.set({ type: 'CREATING', user });
+  selectUser(user: User | null): void {
+    this.selectedUser.set(user);
   }
 
-  updateUser(user: any) {
-    this.state.set({ type: 'UPDATING', user });
-  }
-
-  delete(id: string) {
-    this.state.set({ type: 'DELETING', id });
-  }
-
-  reload() {
+  reload(): void {
     this.usersResource.reload();
+  }
+
+  createUser(payload: CreateUserPayload): Observable<User> {
+    return this.usersService.createUser(payload).pipe(tap(() => this.reload()));
+  }
+
+  updateUser(id: string, payload: UpdateUserPayload): Observable<User> {
+    return this.usersService.updateUser(id, payload).pipe(tap(() => this.reload()));
+  }
+
+  deleteUser(id: string): Observable<void> {
+    return this.usersService.deleteUser(id).pipe(tap(() => this.reload()));
   }
 }

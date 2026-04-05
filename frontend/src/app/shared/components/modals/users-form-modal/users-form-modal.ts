@@ -1,68 +1,82 @@
-import { Component, effect, inject, input, OnInit, output, signal, untracked } from '@angular/core';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
-import { form, required, minLength, email, FormField } from '@angular/forms/signals';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { UsersStore } from '../../../../store/stores-index';
-import { User } from '../../../../core/models/user.model';
-
-interface UserData {
-  name: string;
-  email: string;
-}
+import { UsersStore } from '../../../../store/users/users.store';
+import { CreateUserPayload, User } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-users-form-modal',
-  imports: [DialogModule, ButtonModule, FormField, CommonModule, LucideAngularModule],
+  imports: [LucideAngularModule, ReactiveFormsModule],
   templateUrl: './users-form-modal.html',
-  styleUrl: './users-form-modal.css',
 })
-export class UsersFormModal implements OnInit {
-  protected readonly store = inject(UsersStore);
+export class UsersFormModal {
+  readonly user = input<User | null>(null);
+  readonly visible = input.required<boolean>();
 
-  data = input.required<User | any>();
-  destroyModal = output<void>();
+  readonly closed = output<void>();
+  readonly saved = output<void>();
 
-  visible = signal(false);
-  isSaving = signal(false);
-  userModel = signal<UserData>({ name: '', email: '' });
+  private usersStore = inject(UsersStore);
+  private fb = inject(FormBuilder);
 
-  userForm = form(this.userModel, (schema) => {
-    required(schema.name);
-    minLength(schema.name, 3);
+  readonly isSaving = signal<boolean>(false);
+  readonly isEdit = computed(() => !!this.user());
+
+  readonly form = this.fb.nonNullable.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
   });
 
   constructor() {
     effect(() => {
-      const isFinished =
-        this.isSaving() && !this.store.isLoading() && this.store.statusMessage() === 'Ready';
-
-      if (isFinished) {
-        untracked(() => this.close());
+      if (this.visible()) {
+        const u = this.user();
+        if (u) {
+          this.form.patchValue({
+            name: u.name,
+            email: u.email,
+          });
+          this.form.controls.email.disable(); // Email typically shouldn't be editable.
+        } else {
+          this.form.reset({ name: '', email: '' });
+          this.form.controls.email.enable();
+        }
       }
     });
   }
 
-  ngOnInit(): void {
-    this.userModel.set({ ...this.data() });
-    console.log(this.data());
-    setTimeout(() => this.visible.set(true), 0);
-  }
-
-  save(): void {
-    if (this.userForm().invalid()) {
-      this.userForm().markAsTouched();
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
     this.isSaving.set(true);
-    this.store.updateUser(this.userModel());
+    const payload = this.form.getRawValue() as CreateUserPayload;
+    
+    // In edit mode we might only send name, but getRawValue gets enabled and disabled fields if we specify it or rely on just value. Wait, disabled fields aren't in value, but we need it. For update we only send name according to payload.
+    const action$ = this.isEdit()
+      ? this.usersStore.updateUser(this.user()!.id, { name: payload.name })
+      : this.usersStore.createUser(payload);
+
+    action$.subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.saved.emit();
+      },
+      error: () => this.isSaving.set(false),
+    });
   }
 
   close(): void {
-    this.isSaving.set(false);
-    this.visible.set(false);
-    this.destroyModal.emit();
+    this.closed.emit();
   }
 }
