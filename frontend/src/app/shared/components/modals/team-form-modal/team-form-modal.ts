@@ -13,7 +13,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TeamsStore } from '../../../../store/teams/teams.store';
 import { UsersService } from '../../../../core/services/users.service';
 import { Team, CreateTeamPayload, UpdateTeamPayload } from '../../../../core/models/team.model';
-import { UsersResponse } from '../../../../core/models/user.model';
+// import { UsersResponse } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-team-form-modal',
@@ -64,12 +64,12 @@ export class TeamFormModal {
   }
 
   private loadUsers(): void {
-    this.usersService.getUsers(1).subscribe({
-      next: (res: UsersResponse) => {
-        this.users.set(res.data.map((u) => ({ id: u.id, name: u.name ?? u.email })) ?? []);
-      },
-      error: () => this.users.set([]),
-    });
+    // this.usersService.getUsers(1).subscribe({
+    //   next: (res: UsersResponse) => {
+    //     this.users.set(res.data.map((u) => ({ id: u.id, name: u.name ?? u.email })) ?? []);
+    //   },
+    //   error: () => this.users.set([]),
+    // });
   }
 
   submit(): void {

@@ -58,7 +58,7 @@ services:
       - backend
     networks:
       - drove-trace-network
-    command: npm run start -- --host 0.0.0.0
+    command: npm run start -- --host 0.0.0.0 --allowed-hosts
 
 networks:
   drove-trace-network:

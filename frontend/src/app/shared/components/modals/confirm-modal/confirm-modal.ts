@@ -6,7 +6,7 @@ import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'confirm-modal',
-  imports: [LucideAngularModule, DialogModule, ButtonModule,],
+  imports: [LucideAngularModule, DialogModule, ButtonModule],
   templateUrl: './confirm-modal.html',
   styleUrl: './confirm-modal.css',
 })
@@ -21,7 +21,7 @@ export class ConfirmModal implements OnInit {
 
   constructor() {
     effect(() => {
-      const isFinished = this.isDeleting() && !this.store.isLoading() && this.store.statusMessage() === 'Ready';
+      const isFinished = this.isDeleting() && !this.store.isLoading();
 
       if (isFinished) {
         untracked(() => this.close());
@@ -35,7 +35,7 @@ export class ConfirmModal implements OnInit {
 
   confirm(): void {
     this.isDeleting.set(true);
-    this.store.delete(this.data().id);
+    this.store.deleteUser(this.data().id);
   }
 
   close(): void {

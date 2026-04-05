@@ -1,80 +1,88 @@
-<p-dialog
-  [header]="data()?.id ? 'Edit User' : 'New User'"
-  [(visible)]="visible"
-  (onHide)="close()"
-  [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  maskStyleClass="backdrop-blur-sm"
-  styleClass="border-none overflow-hidden rounded-xl shadow-2xl"
-  [style]="{ width: '30rem', background: 'var(--bg-surface)' }"
-  [breakpoints]="{ '575px': '90vw' }"
->
-  <div class="flex flex-col gap-5 py-4">
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+     (click)="close()">
+  <!-- Stop propagation to prevent closing when clicking inside the modal -->
+  <div class="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+       (click)="$event.stopPropagation()">
 
-    <div class="form-group !mb-0">
-      <label class="label">Full Name</label>
-      <input
-        type="text"
-        [formField]="userForm.name"
-        placeholder="Ej. Juan Pérez"
-        class="input"
-        [class.input-error]="userForm.name().touched() && userForm.name().invalid()"
-        [class.opacity-50]="store.isLoading()"
-      />
-      @if (userForm.name().touched() && userForm.name().invalid()) {
-        <span class="field-error font-medium italic">
-          {{ userForm.name().errors()[0]?.message }}
-        </span>
-      }
+    <!-- Header -->
+    <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+      <h2 class="text-base font-bold text-slate-900 dark:text-white">
+        @if (isEdit()) { Edit user } @else { New user }
+      </h2>
+      <button (click)="close()"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <lucide-icon name="x" [size]="16" />
+      </button>
     </div>
 
-    <div class="form-group !mb-0">
-      <label class="label">Email Address</label>
-      <input
-        type="email"
-        [value]="userModel().email"
-        readonly
-        class="input border-dashed !bg-[var(--bg-surface-2)] cursor-not-allowed opacity-70"
-      />
-      <span class="text-[10px] text-[var(--text-muted)] mt-1">
-        Identifiers cannot be modified for security reasons.
-      </span>
-    </div>
-
-    @if (store.isLoading() && isSaving()) {
-      <div class="flex items-center gap-2 text-sm text-[var(--ring)] animate-pulse">
-        <lucide-angular name="loader-pinwheel" [size]="16" class="animate-spin" />
-        <span class="font-medium">{{ store.statusMessage() }}</span>
+    <!-- Body -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="px-5 py-6 space-y-4">
+      <!-- Name Field -->
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+          Full Name
+        </label>
+        <input
+          type="text"
+          formControlName="name"
+          placeholder="e.g. John Doe"
+          class="w-full px-3 py-2.5 rounded-xl text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+        />
+        @if (form.get('name')?.touched && form.get('name')?.invalid) {
+          <p class="text-xs text-red-500 dark:text-red-400 mt-1.5">
+            Name is required (min 2 characters)
+          </p>
+        }
       </div>
-    }
-  </div>
 
-  <ng-template #footer>
-    <div class="flex items-center justify-end gap-3 p-4 border-t border-[var(--border)]">
-      <button
-        type="button"
-        (click)="close()"
-        [disabled]="store.isLoading()"
-        class="btn-secondary !py-2"
-      >
+      <!-- Email Field -->
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+          Email Address
+        </label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="e.g. john@example.com"
+          class="w-full px-3 py-2.5 rounded-xl text-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        />
+        @if (isEdit()) {
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">
+            Identifiers cannot be modified for security reasons.
+          </p>
+        }
+        @if (form.get('email')?.touched && form.get('email')?.invalid && !isEdit()) {
+          <p class="text-xs text-red-500 dark:text-red-400 mt-1.5">
+            A valid email is required
+          </p>
+        }
+      </div>
+
+      <button type="submit" class="hidden"></button>
+    </form>
+
+    <!-- Footer -->
+    <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800/60 flex justify-end gap-2 bg-slate-50/50 dark:bg-slate-800/30">
+      <button type="button"
+              (click)="close()"
+              class="px-4 py-2 rounded-xl text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
         Cancel
       </button>
-
-      <button
-        type="button"
-        (click)="save()"
-        [disabled]="store.isLoading() || userForm().invalid()"
-        class="btn-primary min-w-[140px]"
-      >
-        @if (store.isLoading() && isSaving()) {
-          <div class="spinner border-2 border-white/30 border-t-white rounded-full"></div>
-          <span>Saving...</span>
+      <button type="submit"
+              (click)="submit()"
+              [disabled]="form.invalid || isSaving()"
+              class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-500 hover:bg-indigo-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[120px]">
+        @if (isSaving()) {
+          <span class="flex items-center gap-2">
+            <lucide-icon name="refresh-cw" [size]="14" class="animate-spin" />
+            Saving...
+          </span>
+        } @else if (isEdit()) {
+          Save changes
         } @else {
-          <lucide-angular name="save" [size]="18" />
-          <span>Save Changes</span>
+          Create user
         }
       </button>
     </div>
-  </ng-template>
-</p-dialog>
+  </div>
+</div>

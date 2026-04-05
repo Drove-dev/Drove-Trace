@@ -11,7 +11,19 @@ export interface Credentials {
   password: string;
 }
 
-export interface UsersResponse {
+export interface PaginatedUsers {
     data:  User[];
     total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
 }

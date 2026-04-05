@@ -1,29 +1,84 @@
-<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-6 space-y-6">
+<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-3 space-y-6">
 
-  <!-- Header -->
-  <div class="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800/60">
-    <div>
-      <!-- <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-        Users
-      </h1> -->
-      <button
-        (click)="openForm()"
-        class="btn-primary flex items-center gap-2">
-        <lucide-angular name="plus" [size]="18" />
-        <span>New user</span>
-      </button>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-        Manage your platform users.
-      </p>
-    </div>
-  </div>
-
-  <basic-table
-    #table
-    [dataSource]="usersStore"
-    [storeType]="storeType()"
-    [columns]="['name', 'email', 'createdAt', 'actions']"
+  <!-- Header + Error + Topbar -->
+  <app-page-header
+    title="Users"
+    subtitle="Manage your platform users."
+    [error]="usersStore.error()"
+    searchPlaceholder="Search users..."
+    [viewMode]="viewMode()"
+    actionLabel="New user"
+    (searchEvent)="usersStore.search($event)"
+    (viewModeChange)="viewMode.set($event)"
+    (actionEvent)="openCreate()"
   />
-</div>
 
-<app-users-form-modal [data]="data()!" (destroyModal)="data.set(null)"/>
+  <!-- ─── GRID VIEW ─────────────────────────────────────────────────────────── -->
+  @if (viewMode() === 'grid') {
+    <app-data-grid-view
+      [items]="usersStore.users()"
+      [isLoading]="usersStore.isLoading()"
+      [cardConfig]="{
+        titleKey: 'name',
+        subtitleKey: 'email',
+        dateKey: 'createdAt',
+        icon: 'user'
+      }"
+      [currentPage]="usersStore.currentPage()"
+      [totalPages]="usersStore.totalPages()"
+      [totalItems]="usersStore.totalItems()"
+      [hasPrevPage]="usersStore.hasPrevPage()"
+      [hasNextPage]="usersStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No users found"
+      itemLabel="users"
+      (pageChange)="usersStore.goToPage($event)"
+      (onEdit)="editingUser.set($event); showFormModal.set(true)"
+      (onDelete)="requestDelete($event)"
+    />
+  }
+
+  <!-- ─── LIST VIEW ─────────────────────────────────────────────────────────── -->
+  @if (viewMode() === 'list') {
+    <app-data-list-view
+      [items]="usersStore.users()"
+      [isLoading]="usersStore.isLoading()"
+      [columns]="[
+        { key: 'name', label: 'Name', width: '1fr', type: 'mono' },
+        { key: 'email', label: 'Email', width: '200px', type: 'text' },
+        { key: 'createdAt', label: 'Created', width: '130px', type: 'date' }
+      ]"
+      [currentPage]="usersStore.currentPage()"
+      [totalPages]="usersStore.totalPages()"
+      [totalItems]="usersStore.totalItems()"
+      [hasPrevPage]="usersStore.hasPrevPage()"
+      [hasNextPage]="usersStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No users found"
+      itemLabel="users"
+      (pageChange)="usersStore.goToPage($event)"
+      (onEdit)="editingUser.set($event); showFormModal.set(true)"
+      (onDelete)="requestDelete($event)"
+    />
+  }
+
+  <!-- Modal -->
+  @if (showFormModal()) {
+    <app-users-form-modal
+      [user]="editingUser()"
+      [visible]="showFormModal()"
+      (closed)="closeModal()"
+      (saved)="closeModal()"
+    />
+  }
+  <!-- Confirm delete modal -->
+  @if (showConfirmModal()) {
+    <app-delete-confirm-modal
+      title="Delete User"
+      message="This will permanently remove the user from the system. This action cannot be undone."
+      [isLoading]="!!deletingId()"
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()"
+    />
+  }
+</div>

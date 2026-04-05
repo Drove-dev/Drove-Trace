@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { User, UsersResponse } from '../models/user.model';
-import { HttpClient } from '@angular/common/http';
+import { User, PaginatedUsers, CreateUserPayload, UpdateUserPayload } from '../models/user.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { delay, map, Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,42 +11,33 @@ export class UsersService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
-  createUser(user: Partial<User>): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/users`, user).pipe(
-      delay(5000),
-      tap((createdUser) => console.log('Created user', createdUser)),
+  createUser(payload: CreateUserPayload): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/users`, payload).pipe(
+      tap((created) => console.log('Created user', created)),
     );
   }
 
-  getUsers(page: number): Observable<UsersResponse> {
-    return this.http.get<UsersResponse>(`${this.apiUrl}/users?page=${page}`).pipe(
-      // delay(5000),
-      // map((users) => users.slice(0, 0)),
-      tap((users) => console.log('Fetched users for page', users)),
+  getUsers(page: number, limit: number, search: string = ''): Observable<PaginatedUsers> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+      
+    if (search) {
+      params = params.set('search', search);
+    }
+
+    return this.http.get<PaginatedUsers>(`${this.apiUrl}/users`, { params }).pipe(
+      tap((res) => console.log('Fetched users', res)),
     );
   }
 
-  getUserByName(name: string): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/users/${name}`);
-    // .pipe(
-    //   delay(5000),
-    //   // tap((updatedUser) => console.log('Updated user', updatedUser))
-    // );
+  updateUser(id: string, payload: UpdateUserPayload): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/users/${id}`, payload).pipe(
+      tap((updated) => console.log('Updated user', updated))
+    );
   }
 
-  updateUser(user: Partial<User>): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/users/${user.id}`, { name: user.name });
-    // .pipe(
-    //   delay(5000),
-    //   tap((updatedUser) => console.log('Updated user', updatedUser))
-    // );
-  }
-
-  deleteUser(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/users/${id}`);
-    // .pipe(
-    //   delay(5000),
-    //   tap((deleted) => console.log('Deleted user', deleted))
-    // );
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users/${id}`);
   }
 }
