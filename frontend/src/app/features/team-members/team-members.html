@@ -1,5 +1,87 @@
-<basic-table
-  [dataSource]="store"
-  [storeType]="storeType()"
-  [columns]="['name', 'user', 'role', 'createdAt', 'actions']"
->
+<div class="animate-in fade-in slide-in-from-bottom-6 duration-1000 p-3 space-y-6">
+
+  <!-- Header + Error + Topbar -->
+  <app-page-header
+    title="Team Members"
+    subtitle="Manage your team members and roles."
+    [error]="teamMembersStore.error()"
+    searchPlaceholder="Search team members..."
+    [viewMode]="viewMode()"
+    actionLabel="New team member"
+    (searchEvent)="teamMembersStore.search($event)"
+    (viewModeChange)="viewMode.set($event)"
+    (actionEvent)="openCreate()"
+  />
+
+  <!-- ─── GRID VIEW ─────────────────────────────────────────────────────────── -->
+  @if (viewMode() === 'grid') {
+    <app-data-grid-view
+      [items]="teamMembersStore.members()"
+      [isLoading]="teamMembersStore.isLoading()"
+      [cardConfig]="{
+        titleKey: 'userName',
+        subtitleKey: 'roleNames',
+        environmentKey: 'teamName',
+        dateKey: 'createdAt',
+        icon: 'users'
+      }"
+      [currentPage]="teamMembersStore.currentPage()"
+      [totalPages]="teamMembersStore.totalPages()"
+      [totalItems]="teamMembersStore.totalItems()"
+      [hasPrevPage]="teamMembersStore.hasPrevPage()"
+      [hasNextPage]="teamMembersStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No team members found"
+      itemLabel="members"
+      (pageChange)="teamMembersStore.goToPage($event)"
+      (onEdit)="editingMember.set($event); showFormModal.set(true)"
+      (onDelete)="requestDelete($event)"
+    />
+  }
+
+  <!-- ─── LIST VIEW ─────────────────────────────────────────────────────────── -->
+  @if (viewMode() === 'list') {
+    <app-data-list-view
+      [items]="teamMembersStore.members()"
+      [isLoading]="teamMembersStore.isLoading()"
+      [columns]="[
+        { key: 'userName', label: 'User', width: '1fr', type: 'mono' },
+        { key: 'teamName', label: 'Team', width: '200px', type: 'text' },
+        { key: 'teamOwnerName', label: 'Team Owner', width: '160px', type: 'text' },
+        { key: 'roleNames', label: 'Role', width: '120px', type: 'badge' },
+        { key: 'createdAt', label: 'Added', width: '120px', type: 'date' }
+      ]"
+      [currentPage]="teamMembersStore.currentPage()"
+      [totalPages]="teamMembersStore.totalPages()"
+      [totalItems]="teamMembersStore.totalItems()"
+      [hasPrevPage]="teamMembersStore.hasPrevPage()"
+      [hasNextPage]="teamMembersStore.hasNextPage()"
+      [deletingId]="deletingId()"
+      emptyMessage="No team members found"
+      itemLabel="members"
+      (pageChange)="teamMembersStore.goToPage($event)"
+      (onEdit)="editingMember.set($event); showFormModal.set(true)"
+      (onDelete)="requestDelete($event)"
+    />
+  }
+
+  <!-- Modal -->
+  @if (showFormModal()) {
+    <app-team-members-form-modal
+      [member]="editingMember()"
+      [visible]="showFormModal()"
+      (closed)="closeModal()"
+      (saved)="closeModal()"
+    />
+  }
+  <!-- Confirm delete modal -->
+  @if (showConfirmModal()) {
+    <app-delete-confirm-modal
+      title="Delete Team Member"
+      message="This will permanently remove the member from the team. This action cannot be undone."
+      [isLoading]="!!deletingId()"
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()"
+    />
+  }
+</div>

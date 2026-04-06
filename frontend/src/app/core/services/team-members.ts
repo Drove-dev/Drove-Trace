@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { delay, map, Observable, tap } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { TeamMemberList, TeamMember, } from '../models/team-member.model';
+import { Observable, tap } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { PaginatedTeamMembers, TeamMember, CreateTeamMemberPayload, UpdateTeamMemberPayload } from '../models/team-member.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -11,28 +11,33 @@ export class TeamMembersService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
-  getTeamMemberships(page:number): Observable<TeamMemberList> {
-
-    return this.http.get<TeamMemberList>(`${this.apiUrl}/team-members?page=${page}`)
-    // .pipe(
-    //   delay(5000),
-    //   tap((updatedUser) => console.log('Updated user', updatedUser))
-    // );
+  createTeamMembership(payload: CreateTeamMemberPayload): Observable<TeamMember> {
+    return this.http.post<TeamMember>(`${this.apiUrl}/team-members`, payload).pipe(
+      tap((res) => console.log('Created member', res)),
+    );
   }
 
-  getTeamMembershipsByName(name:string): Observable<any> {
-    return this.http.get<TeamMemberList>(`${this.apiUrl}/team-members/${name}`).pipe(delay(1000));
+  getTeamMemberships(page: number, limit: number, search: string = ''): Observable<PaginatedTeamMembers> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+      
+    if (search) {
+      params = params.set('search', search);
+    }
+
+    return this.http.get<PaginatedTeamMembers>(`${this.apiUrl}/team-members`, { params }).pipe(
+      tap((res) => console.log('Fetched team members', res)),
+    );
   }
 
-  updateTeamMembersShips(team: Partial<TeamMember>): Observable<TeamMemberList> {
-    return this.http.patch<TeamMemberList>(`${this.apiUrl}/team-members/${team.id}`, {name: team })
-    // .pipe(
-    //   delay(5000),
-    //   tap((updatedUser) => console.log('Updated user', updatedUser))
-    // );
+  updateTeamMembership(id: string, payload: UpdateTeamMemberPayload): Observable<TeamMember> {
+    return this.http.patch<TeamMember>(`${this.apiUrl}/team-members/${id}`, payload).pipe(
+      tap((res) => console.log('Updated member', res))
+    );
   }
 
-  removeMember(membershipId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/team-members/${membershipId}`);
+  removeMember(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/team-members/${id}`);
   }
 }
