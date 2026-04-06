@@ -1,77 +1,136 @@
-import { Component, effect, inject, input, OnInit, output, signal, untracked } from '@angular/core';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
-import { form, required, minLength, FormField } from '@angular/forms/signals';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { TeamMembersStore } from '../../../../store/team-members/team-members.store';
-import { TeamMember } from '../../../../core/models/team-member.model';
+import { CreateTeamMemberPayload, TeamMember } from '../../../../core/models/team-member.model';
 
-interface TeamMemberData {
-  name: string;
-  role: string;
-  user: string;
-}
+import { TeamsService } from '../../../../core/services';
+import { UsersService } from '../../../../core/services/users.service';
+import { RolesStore } from '../../../../store/roles/roles.store';
+import { User } from '../../../../core/models/user.model';
+import { TeamsResponse } from '../../../../core/models/team.model';
 
 @Component({
   selector: 'app-team-members-form-modal',
   standalone: true,
-  imports: [DialogModule, ButtonModule, FormField, CommonModule, LucideAngularModule],
+  imports: [LucideAngularModule, ReactiveFormsModule],
   templateUrl: './team-members-form-modal.html',
-  styleUrl: './team-members-form-modal.css',
 })
-export class TeamMembersFormModal implements OnInit {
-  protected readonly store = inject(TeamMembersStore);
+export class TeamMembersFormModal {
+  readonly member = input<TeamMember | null>(null);
+  readonly visible = input.required<boolean>();
 
-  data = input.required<TeamMember | any>();
-  destroyModal = output<void>();
+  readonly closed = output<void>();
+  readonly saved = output<void>();
 
-  visible = signal(false);
-  isSaving = signal(false);
-  teamMemberModel = signal<TeamMemberData>({ name: '', role: '', user: '' });
+  private teamMembersStore = inject(TeamMembersStore);
+  private teamsService = inject(TeamsService);
+  private usersService = inject(UsersService);
+  readonly rolesStore = inject(RolesStore);
+  private fb = inject(FormBuilder);
 
-  teamMemberForm = form(this.teamMemberModel, (schema) => {
-    required(schema.name);
-    minLength(schema.name, 3);
-    required(schema.role);
+  readonly isSaving = signal<boolean>(false);
+  readonly isEdit = computed(() => !!this.member());
+
+  readonly teams = signal<{ id: string; name: string }[]>([]);
+  readonly users = signal<User[]>([]);
+
+  readonly form = this.fb.nonNullable.group({
+    teamId: ['', [Validators.required]],
+    userId: ['', [Validators.required]],
+    roleId: ['', [Validators.required]],
   });
 
   constructor() {
     effect(() => {
-      const isFinished =
-        this.isSaving() && !this.store.isLoading() && this.store.statusMessage() === 'Ready';
+      if (this.visible()) {
+        const m = this.member();
 
-      if (isFinished) {
-        untracked(() => this.close());
+        untracked(() => {
+          this.loadDependencies();
+        });
+
+        if (m) {
+          this.form.patchValue({
+            // teamId is patched async inside loadDependencies when teams resolve
+            userId: m.userId ?? '',
+            roleId: m.roleId ?? '',
+          });
+          
+          this.form.controls.teamId.disable();
+          this.form.controls.userId.enable();
+          this.form.controls.roleId.enable();
+        } else {
+          this.form.reset({ teamId: '', userId: '', roleId: '' });
+          this.form.controls.teamId.enable();
+          this.form.controls.userId.enable();
+          this.form.controls.roleId.enable();
+        }
       }
     });
   }
 
-  ngOnInit(): void {
-    this.teamMemberModel.set({
-      name: this.data().name || '',
-      role: this.data().role || '',
-      user: this.data().user || '',
+  private loadDependencies(): void {
+    const isEdit = this.isEdit();
+    const currentMember = this.member();
+
+    this.teamsService.getTeams(1, 15).subscribe({
+      next: (res: any) => {
+        // Safe parsing depending on backend variation
+        const data = Array.isArray(res) ? res : (res.data ?? []);
+        this.teams.set(data);
+
+        // Patch the team ID async if editing once loaded
+        if (isEdit && currentMember) {
+          const match = data.find((t: any) => t.name === currentMember.teamName);
+          const theTeamId = match?.id || (currentMember as any).teamId || currentMember.id || '';
+          this.form.patchValue({ teamId: theTeamId });
+        }
+      },
+      error: () => this.teams.set([]),
     });
-    setTimeout(() => this.visible.set(true), 0);
+
+    this.usersService.getUsers(1, 15).subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : (res.data ?? []);
+        this.users.set(data);
+      },
+      error: () => this.users.set([]),
+    });
   }
 
-  save(): void {
-    if (this.teamMemberForm().invalid()) {
-      this.teamMemberForm().markAsTouched();
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
     this.isSaving.set(true);
-    this.store.updateTeam({
-        ...this.data(),
-        ...this.teamMemberModel()
+    const payload = this.form.getRawValue() as CreateTeamMemberPayload;
+    
+    const action$ = this.isEdit()
+      ? this.teamMembersStore.updateMember(this.member()!.id, payload)
+      : this.teamMembersStore.createMember(payload);
+
+    action$.subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.saved.emit();
+      },
+      error: () => this.isSaving.set(false),
     });
   }
 
   close(): void {
-    this.isSaving.set(false);
-    this.visible.set(false);
-    this.destroyModal.emit();
+    this.closed.emit();
   }
 }

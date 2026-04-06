@@ -5,16 +5,9 @@
       <h1 class="text-3xl font-bold tracking-tight text-(--text-primary)">SDK Keys</h1>
       <p class="text-(--text-muted) mt-1">Manage ingest credentials for your projects</p>
     </div>
-    <button (click)="table.openForm({ data: {}, formType: storeType() })" class="btn-primary flex items-center gap-2">
-      <lucide-angular name="plus" [size]="18" />
-      <span>Generate Key</span>
-    </button>
   </div>
 
   <!-- Main Table Section -->
-  <div class="panel overflow-hidden shadow-xl border-(--border) bg-(--bg-card)">
-    <basic-table #table [dataSource]="store" [storeType]="storeType()" [columns]="columns()" />
-  </div>
 
   <!-- Integration Snippet Section -->
   <div class="snippet-box relative group overflow-hidden rounded-2xl border border-(--border) bg-surface-2 p-1">
